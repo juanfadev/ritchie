@@ -101,20 +101,16 @@ int OperatingSystem_LongTermScheduler() {
 	while (userProgramsList[i]!=NULL && i<USERPROGRAMSMAXNUMBER) {
 		PID=OperatingSystem_CreateProcess(*userProgramsList[i]);
 		if (PID==NOFREEENTRY){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","There   are   not   free   entries   in   the   process   table   for   the   program
-[",userProgramsList[i],"]");
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","There   are   not   free   entries   in   the   process   table   for   the   program [",userProgramsList[i],"]");
 		}
 		else if (PID==PROGRAMDOESNOTEXIST){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program
-[",userProgramsList[i],"] is not valid (Program does not exist)");
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program [",userProgramsList[i],"] is not valid (Program does not exist)");
 		}
 		else if (PID==PROGRAMNOTVALID){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program
-[",userProgramsList[i],"] is not valid (Invalid priority or size)");
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program [",userProgramsList[i],"] is not valid (Invalid priority or size)");
 		}
 		else if (PID==TOOBIGPROCESS){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program
-[",userProgramsList[i],"] is too big");
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program [",userProgramsList[i],"] is too big");
 		}
 		else{
 			numberOfSuccessfullyCreatedProcesses++;
