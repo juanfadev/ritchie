@@ -471,3 +471,10 @@ int OperatingSystem_lineBeginsWithANumber(char * line) {
 	else
 		return 0;
 }
+
+void OperatingSystem_PrintReadyToRunQueue(){
+
+	while (readyToRunQueue[i]!=NULL){
+		ComputerSystem_DebugMessage()
+	}
+}
