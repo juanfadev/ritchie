@@ -9,7 +9,7 @@
 
 
 // Array that contains basic data about all user programs specified
-// in the command line 
+// in the command line
 USER_PROGRAMS_DATA *userProgramsList[USERPROGRAMSMAXNUMBER];
 
 // String specified in the command line to tell the simulator which of its
@@ -19,21 +19,23 @@ char *debugLevel;
 
 // Only one colour messages. Set to 1 for more colours checking uppercase in debugLevel
 int COLOURED = 0 ;
-  
+
 // Powers on of the Computer System.
 void ComputerSystem_PowerOn(int argc, char *argv[]) {
 
 
 	// Obtain a list of programs in the command line
 	ComputerSystem_ObtainProgramList(argc, argv);
-	
+
+  //
+	ComputerSystem_PrintProgramList();
 	// Request the OS to do the initial set of tasks. The last one will be
 	// the processor allocation to the process with the highest priority
 	OperatingSystem_Initialize();
-	
-	// Tell the processor to begin its instruction cycle 
+
+	// Tell the processor to begin its instruction cycle
 	Processor_InstructionCycleLoop();
-	
+
 }
 
 // Powers off the CS (the C program ends)
@@ -46,7 +48,7 @@ void ComputerSystem_PowerOff() {
 // by the user in the command line
 // IT IS NOT NECESSARY TO COMPLETELY UNDERSTAND THIS FUNCTION
 void ComputerSystem_ObtainProgramList(int argc, char *argv[]) {
-	
+
 	int i;
 	int count=0;
 	USER_PROGRAMS_DATA *upd;
@@ -58,7 +60,7 @@ void ComputerSystem_ObtainProgramList(int argc, char *argv[]) {
 		COLOURED = 1;
 		debugLevel[i]=tolower(debugLevel[i]);
 	  }
-	
+
 	for (i=0; i<USERPROGRAMSMAXNUMBER;i++)
 	      userProgramsList[i]=NULL;
 
@@ -75,15 +77,26 @@ void ComputerSystem_ObtainProgramList(int argc, char *argv[]) {
 				// An arrival time has been read. Increment i
 				i++;
 			else
-				// An arrival time has not been read. Assume it is 0 and do not increment i 
+				// An arrival time has not been read. Assume it is 0 and do not increment i
 				upd->arrivalTime = 0;
 		}
 		// Store the structure in the list
 		userProgramsList[count]=upd;
-		
+
  		count++; // There is one program more
 	}
 //	return count;
+}
+
+//Function that shows the contents of the vector userProgramsList.
+void ComputerSystem_PrintProgramList(){
+  //ComputerSystem_DebugMessage(INIT, "s", );
+  int i=0;
+  while (userProgramsList[i]!=NULL){
+    ComputerSystem_DebugMessage(INIT, "sssds", "\tProgram [", userProgramsList[i]->executableName, "] with arrival time [", userProgramsList[i]->arrivalTime,"]\n");
+    i++;
+  }
+
 }
 
 // Function used to show messages with details of the internal working of
@@ -136,13 +149,13 @@ void ComputerSystem_DebugMessage(char section, char *format, ...) {
 				  printf("%c[%d;%dm", 0x1B, 1, 36);
 				  if (!colour) colour=1;
 				}
-				break;		
+				break;
 			case 'W': // Text in white
 				if (COLOURED){
 				  printf("%c[%d;%dm", 0x1B, 1, 37);
 				  if (!colour) colour=1;
 				}
-				break;		
+				break;
 			case 's':
 				printf("%s",va_arg(lp, char *));
 				if (colour)
@@ -150,18 +163,18 @@ void ComputerSystem_DebugMessage(char section, char *format, ...) {
 				break;
 			case 'd':
 				printf("%d",va_arg(lp, int));
-				if (colour) 
+				if (colour)
 					printf("%c[%dm", 0x1B, 0);
 				break;
 			case 'f':
 				printf("%f",va_arg(lp, double));
-				if (colour) 
+				if (colour)
 					printf("%c[%dm", 0x1B, 0);
 				break;
 			case 'c':
 				c = (char) va_arg(lp, int);
 				printf("%c", c);
-				if (colour) 
+				if (colour)
 					printf("%c[%dm", 0x1B, 0);
 				break;
 			default:
@@ -173,4 +186,3 @@ void ComputerSystem_DebugMessage(char section, char *format, ...) {
 	if (COLOURED && colour)
 	    printf("%c[%dm", 0x1B, 0);
 } // ComputerSystem_DebugMessage()
-

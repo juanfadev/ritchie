@@ -46,63 +46,81 @@ int numberOfNotTerminatedProcesses=0;
 
 // Initial set of tasks of the OS
 void OperatingSystem_Initialize() {
-	
+
 	int i, selectedProcess;
-	
+
 	// Initialize random feed
 	srand(time(NULL));
 
 	// Process table initialization (all entries are free)
 	for (i=0; i<PROCESSTABLEMAXSIZE;i++)
 		processTable[i].busy=0;
-	
+
 	// Initialization of the interrupt vector table of the processor
 	Processor_InitializeInterruptVectorTable();
-	
+
 	// Create all system daemon processes
 	OperatingSystem_CreateDaemons();
-	
+
 	if (sipID<0) {
 	  ComputerSystem_DebugMessage(SHUTDOWN, "Rs", "ERROR: Missing SIP program!\n");
 	  exit(1);
 	}
-	
+
 	// Create all user processes from the information given in the command line
 	OperatingSystem_LongTermScheduler();
-	
+
 	// At least, one user process has been created
 	// Select the first process that is going to use the processor
 	selectedProcess=OperatingSystem_ShortTermScheduler();
 
 	// Assign the processor to the selected process
 	OperatingSystem_Dispatch(selectedProcess);
-	  
+
 }
 
 // Daemon processes are system processes, that is, they work together with the OS.
 // The System Idle Process uses the CPU whenever a user process is able to use it
 void OperatingSystem_CreateDaemons() {
-  
+
 	USER_PROGRAMS_DATA systemIdleProcess;
-	
+
 	systemIdleProcess.executableName="SystemIdleProcess";
-	sipID=OperatingSystem_CreateProcess(systemIdleProcess);  
+	sipID=OperatingSystem_CreateProcess(systemIdleProcess);
 }
 
 
 // The LTS is responsible of the admission of new processes in the system.
 // Initially, it creates a process from each program specified in the command line
 int OperatingSystem_LongTermScheduler() {
-  
+
 	int PID;
  	int i=0;
 	int numberOfSuccessfullyCreatedProcesses=0;
-	
+
 	while (userProgramsList[i]!=NULL && i<USERPROGRAMSMAXNUMBER) {
 		PID=OperatingSystem_CreateProcess(*userProgramsList[i]);
-		numberOfSuccessfullyCreatedProcesses++;
-		ComputerSystem_DebugMessage(INIT,"GsGdGsGsGs","Process [",PID,"] created from program [",userProgramsList[i]->executableName,"]\n");
-		i++;
+		if (PID==NOFREEENTRY){
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","There   are   not   free   entries   in   the   process   table   for   the   program
+[",userProgramsList[i],"]");
+		}
+		else if (PID==PROGRAMDOESNOTEXIST){
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program
+[",userProgramsList[i],"] is not valid (Program does not exist)");
+		}
+		else if (PID==PROGRAMNOTVALID){
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program
+[",userProgramsList[i],"] is not valid (Invalid priority or size)");
+		}
+		else if (PID==TOOBIGPROCESS){
+			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program
+[",userProgramsList[i],"] is too big");
+		}
+		else{
+			numberOfSuccessfullyCreatedProcesses++;
+			ComputerSystem_DebugMessage(INIT,"GsGdGsGsGs","Process [",PID,"] created from program [",userProgramsList[i]->executableName,"]\n");
+			i++;
+		}
 	}
 	numberOfNotTerminatedProcesses+=numberOfSuccessfullyCreatedProcesses;
 
@@ -113,31 +131,46 @@ int OperatingSystem_LongTermScheduler() {
 
 // This function creates a process from an executable program
 int OperatingSystem_CreateProcess(USER_PROGRAMS_DATA executableProgram) {
-  
+
 	int PID;
 	int processSize;
 	int loadingPhysicalAddress;
 	int priority;
+	int loadProgram;
 	FILE *programFile;
 
 	// Obtain a process ID
 	PID=OperatingSystem_ObtainAnEntryInTheProcessTable();
-	
+	if (PID==NOFREEENTRY){
+		return NOFREEENTRY;
+	}
+
 	// Obtain the memory requirements of the program
 	processSize=OperatingSystem_ObtainProgramSize(&programFile, executableProgram.executableName);
-	
+		if (processSize==PROGRAMNOTVALID)
+			return PROGRAMNOTVALID;
+		else if (processSize==PROGRAMDOESNOTEXIST){
+			return PROGRAMDOESNOTEXIST;
+		}
+
 	// Obtain the priority for the process
 	priority=OperatingSystem_ObtainPriority(programFile);
-	
+	if (priority==PROGRAMNOTVALID){
+		return PROGRAMNOTVALID;
+	}
 	// Obtain enough memory space
  	loadingPhysicalAddress=OperatingSystem_ObtainMainMemory(processSize, PID);
-	
+	if (loadingPhysicalAddress==TOOBIGPROCESS){
+		return TOOBIGPROCESS;
+	}
 	// Load program in the allocated memory
-	OperatingSystem_LoadProgram(programFile, loadingPhysicalAddress, processSize);
-	
+	loadProgram=OperatingSystem_LoadProgram(programFile, loadingPhysicalAddress, processSize);
+	if (loadProgram==TOOBIGPROCESS){
+		return TOOBIGPROCESS;
+	}
 	// PCB initialization
 	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority);
-	
+
 	return PID;
 }
 
@@ -167,7 +200,7 @@ int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 
  	if (processSize>MAINMEMORYSECTIONSIZE)
 		return TOOBIGPROCESS;
-	
+
  	return PID*MAINMEMORYSECTIONSIZE;
 }
 
@@ -187,37 +220,37 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 // Move a process to the READY state: it will be inserted, depending on its priority, in
 // a queue of identifiers of READY processes
 void OperatingSystem_MoveToTheREADYState(int PID) {
-	
+
 	if (Heap_add(PID, readyToRunQueue,QUEUE_PRIORITY ,numberOfReadyToRunProcesses ,PROCESSTABLEMAXSIZE)>=0) {
 	  numberOfReadyToRunProcesses++;
 	  processTable[PID].state=READY;
-	} 
+	}
 }
 
 // The STS is responsible of deciding which process to execute when specific events occur.
 // It uses processes priorities to make the decission. Given that the READY queue is ordered
 // depending on processes priority, the STS just selects the process in front of the READY queue
 int OperatingSystem_ShortTermScheduler() {
-	
+
 	int selectedProcess;
 
 	selectedProcess=OperatingSystem_ExtractFromReadyToRun();
-	
+
 	return selectedProcess;
 }
 
 
 // Return PID of more priority process in the READY queue
 int OperatingSystem_ExtractFromReadyToRun() {
-  
+
 	int selectedProcess=NOPROCESS;
 
 	selectedProcess=Heap_poll(readyToRunQueue,QUEUE_PRIORITY ,numberOfReadyToRunProcesses);
-	if (selectedProcess>=0) 
+	if (selectedProcess>=0)
 	  numberOfReadyToRunProcesses--;
-	
+
 	// Return most priority process or NOPROCESS if empty queue
-	return selectedProcess; 
+	return selectedProcess;
 }
 
 // Function that assigns the processor to a process
@@ -234,7 +267,7 @@ void OperatingSystem_Dispatch(int PID) {
 
 // Modify hardware registers with appropriate values for the process identified by PID
 void OperatingSystem_RestoreContext(int PID) {
-  
+
 	// New values for the CPU registers are obtained from the PCB
 	Processor_SetPC(processTable[PID].copyOfPCRegister);
 	// Same thing for the MMU registers
@@ -243,7 +276,7 @@ void OperatingSystem_RestoreContext(int PID) {
 }
 
 
-// Function invoked when the executing process leaves the CPU 
+// Function invoked when the executing process leaves the CPU
 void OperatingSystem_PreemptRunningProcess() {
 
 	// Save in the process' PCB essential values stored in hardware registers and the system stack
@@ -256,21 +289,21 @@ void OperatingSystem_PreemptRunningProcess() {
 
 // Save in the process' PCB essential values stored in hardware registers and the system stack
 void OperatingSystem_SaveContext(int PID) {
-	
+
 	Processor_SetMAR(MAINMEMORYSIZE-1); // Load PC saved for interrupt manager
 
 	Buses_write_AddressBus_From_To(CPU, MAINMEMORY);
 	MainMemory_readMemory();
 	processTable[PID].copyOfPCRegister= Processor_GetMBR_Value();
-	
+
 }
 
 
 // Exception management routine
 void OperatingSystem_HandleException() {
-  
+
   ComputerSystem_DebugMessage(SYSPROC,"RsRdRs","Process [",executingProcessID,"] has generated an exception and is terminating\n");
-	
+
   OperatingSystem_TerminateProcess();
 
 }
@@ -278,14 +311,14 @@ void OperatingSystem_HandleException() {
 
 // All tasks regarding the removal of the process
 void OperatingSystem_TerminateProcess() {
-  
+
 	int selectedProcess;
-  	
+
 	processTable[executingProcessID].state=EXIT;
-	
+
 	// One more process that has terminated
 	numberOfNotTerminatedProcesses--;
-	
+
 	if (numberOfNotTerminatedProcesses<=0) {
 		// Simulation must finish (done by modifying the PC of the System Idle Process so it points to its 'halt' instruction,
 		// located at the last memory position used by that process, and dispatching sipId (next ShortTermSheduled)
@@ -300,12 +333,12 @@ void OperatingSystem_TerminateProcess() {
 
 // System call management routine
 void OperatingSystem_HandleSystemCall() {
-  
+
 	int systemCallID;
 
 	// Register A contains the identifier of the issued system call
 	systemCallID=Processor_GetRegisterA();
-	
+
 	switch (systemCallID) {
 
 	  case SYSCALL_PRINTEXECPID:
@@ -326,9 +359,9 @@ int OperatingSystem_ObtainProgramSize(FILE **programFile, char *program) {
 	char lineRead[MAXLINELENGTH];
 	int isComment=1;
 	int programSize;
-	
+
 	*programFile= fopen(program, "r");
-	
+
 	// Check if programFile exists
 	if (*programFile==NULL)
 		return PROGRAMDOESNOTEXIST;
@@ -360,7 +393,7 @@ int OperatingSystem_ObtainPriority(FILE *programFile) {
 	char lineRead[MAXLINELENGTH];
 	int isComment=1;
 	int processPriority;
-	
+
 	// Read the second number as the priority of the program. Skip all comments.
 	while (isComment==1) {
 		if (fgets(lineRead, MAXLINELENGTH, programFile) == NULL)
@@ -410,7 +443,7 @@ int OperatingSystem_LoadProgram(FILE *programFile, int initialAddress, int size)
 				  data->operand2=atoi(token2);
 				}
 			}
-			
+
 		      // More instructions than size...
 			if (Processor_GetMAR() == finalAddress) {
 				  free(data);
@@ -428,12 +461,12 @@ int OperatingSystem_LoadProgram(FILE *programFile, int initialAddress, int size)
 	}
 	free(data);
 	return SUCCESS;
-}	
+}
 
 // Auxiliar for check that line begins with positive number
 int OperatingSystem_lineBeginsWithANumber(char * line) {
 	int i;
-	
+
 	for (i=0; i<strlen(line) && line[i]==' '; i++); // Don't consider blank spaces
 	// If is there a digit number...
 	if (i<strlen(line) && isdigit(line[i]))
@@ -442,6 +475,3 @@ int OperatingSystem_lineBeginsWithANumber(char * line) {
 	else
 		return 0;
 }
-	  
-	  
-	  
