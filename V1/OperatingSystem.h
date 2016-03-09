@@ -24,6 +24,13 @@
 
 #define NOPROCESS -1
 
+#define NUMBEROFQUEUES 2
+// in OperatingSystem.h
+#define USERPROCESSQUEUE 0
+// in OperatingSystem.h
+#define DAEMONSQUEUE 1
+// in OperatingSystem.h
+
 // Enumerated type containing all the possible process states
 enum ProcessStates { NEW, READY, EXECUTING, BLOCKED, EXIT};
 
