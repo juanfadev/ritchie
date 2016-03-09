@@ -87,7 +87,7 @@ void OperatingSystem_CreateDaemons() {
 	USER_PROGRAMS_DATA systemIdleProcess;
 
 	systemIdleProcess.executableName="SystemIdleProcess";
-	sipID=OperatingSystem_CreateProcess(systemIdleProcess);
+	sipID=OperatingSystem_CreateProcess(systemIdleProcess, DAEMONSQUEUE);
 }
 
 
@@ -100,7 +100,7 @@ int OperatingSystem_LongTermScheduler() {
 	int numberOfSuccessfullyCreatedProcesses=0;
 
 	while (userProgramsList[i]!=NULL && i<USERPROGRAMSMAXNUMBER) {
-		PID=OperatingSystem_CreateProcess(*userProgramsList[i]);
+		PID=OperatingSystem_CreateProcess(*userProgramsList[i], );
 		if (PID==NOFREEENTRY){
 			ComputerSystem_DebugMessage(ERROR, "GsGsGs","There   are   not   free   entries   in   the   process   table   for   the   program [",userProgramsList[i],"]");
 		}
@@ -166,7 +166,7 @@ int OperatingSystem_CreateProcess(USER_PROGRAMS_DATA executableProgram, int queu
 		return TOOBIGPROCESS;
 	}
 	// PCB initialization
-	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority);
+	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, queue);
 
 	return PID;
 }
@@ -211,7 +211,8 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 	processTable[PID].copyOfPCRegister=0;
 	processTable[PID].priority=priority;
 	processTable[PID].state=NEW;
-	ComputerSystem_DebugMessage(SYSPROC,"sdsss","New process [",PID,"] moving to the ", processTable[PID].state, "state"\n);
+	processTable[PID].queueID=queue;
+	ComputerSystem_DebugMessage(SYSPROC,"sdsss","New process [",PID,"] moving to the ", processTable[PID].state, "state\n");
 	OperatingSystem_MoveToTheREADYState(PID);
 }
 
@@ -219,35 +220,42 @@ void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int 
 // a queue of identifiers of READY processes
 void OperatingSystem_MoveToTheREADYState(int PID) {
 
-	if (Heap_add(PID, readyToRunQueue,QUEUE_PRIORITY ,numberOfReadyToRunProcesses ,PROCESSTABLEMAXSIZE)>=0) {
-	  numberOfReadyToRunProcesses++;
+	int prevState = processTable[PID].state
+	if (Heap_add(PID, readyToRunQueue[processTable[PID].queueID],QUEUE_PRIORITY ,numberOfReadyToRunProcesses[processTable[PID].queueID] ,PROCESSTABLEMAXSIZE)>=0) {
+	  numberOfReadyToRunProcesses[processTable[PID].queueID]++;
 	  processTable[PID].state=READY;
 	}
 
 	OperatingSystem_PrintReadyToRunQueue();
+	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",processTable[PID].state , "state\n");
+
 }
 
 // The STS is responsible of deciding which process to execute when specific events occur.
 // It uses processes priorities to make the decission. Given that the READY queue is ordered
 // depending on processes priority, the STS just selects the process in front of the READY queue
-int OperatingSystem_Scheduler() {
+int OperatingSystem_ShortTermScheduler() {
 
 	int selectedProcess;
-
-	selectedProcess=OperatingSystem_ExtractFromReadyToRun();
+	if (readyToRunQueue[USERPROCESSQUEUE]>0){
+		selectedProcess=OperatingSystem_ExtractFromReadyToRun(USERPROCESSQUEUE)
+	}
+	else{
+		selectedProcess=OperatingSystem_ExtractFromReadyToRun(DAEMONSQUEUE)
+	}
 
 	return selectedProcess;
 }
 
 
 // Return PID of more priority process in the READY queue
-int OperatingSystem_ExtractFromReadyToRun() {
+int OperatingSystem_ExtractFromReadyToRun(int queue) {
 
 	int selectedProcess=NOPROCESS;
-
-	selectedProcess=Heap_poll(readyToRunQueue,QUEUE_PRIORITY ,numberOfReadyToRunProcesses);
+	//if userqueue has a process select it, else select a daemon one
+	selectedProcess=Heap_poll(readyToRunQueue[queue],QUEUE_PRIORITY ,numberOfReadyToRunProcesses[queue]);
 	if (selectedProcess>=0)
-	  numberOfReadyToRunProcesses--;
+	  numberOfReadyToRunProcesses[queue]--;
 
 	// Return most priority process or NOPROCESS if empty queue
 	return selectedProcess;
@@ -261,9 +269,9 @@ void OperatingSystem_Dispatch(int PID) {
 	// The process identified by PID becomes the current executing process
 	executingProcessID=PID;
 	// Change the process' state
-	prevState= processTable[PID].state
+	int prevState= processTable[PID].state
 	processTable[PID].state=EXECUTING;
-	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",processTable[PID].state , "state"\n);
+	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",processTable[PID].state , "state\n");
 
 }
 
@@ -287,11 +295,11 @@ void OperatingSystem_PreemptRunningProcess() {
 	// Change the process' state
 	executingProcessID=PID;
 	// Change the process' state
-	prevState= processTable[PID].state
+	int prevState= processTable[PID].state
 	OperatingSystem_MoveToTheREADYState(executingProcessID);
 	nextState= processTable[executingProcessID].state;
 	// The processor is not assigned until the OS selects another process
-	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",nextState , "state"\n);
+	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",nextState , "state\n");
 
 	executingProcessID=NOPROCESS;
 }
@@ -491,13 +499,12 @@ void OperatingSystem_PrintReadyToRunQueue(){
 	for (int i=0; i<NUMBEROFQUEUES; i++){
 		for (int j=0; j<numberOfReadyToRunProcesses[i]; j++){
 			if (i==USERPROCESSQUEUE){
-				ComputerSystem_DebugMessage(SHORTTERMSHEDULE, "sGdsds","\t USER:[", readyToRunQueue[j], ",", processTable[readyToRunQueue[j]].priority, "]")
+				ComputerSystem_DebugMessage(SHORTTERMSHEDULE, "sGdsds","\t USER:[", readyToRunQueue[j], ",", processTable[readyToRunQueue[j]].priority, "]");
 				if (j<(numberOfReadyToRunProcesses[i]-1))
 					ComputerSystem_DebugMessage(SHORTTERMSHEDULE, "s", ", ");
 			}
 			else if (i == DAEMONSQUEUE){
-				if (i==USERPROCESSQUEUE){
-					ComputerSystem_DebugMessage(SHORTTERMSHEDULE, "sGdsds","\t DAEMONS:[", readyToRunQueue[j], ",", processTable[readyToRunQueue[j]].priority, "]")
+					ComputerSystem_DebugMessage(SHORTTERMSHEDULE, "sGdsds","\t DAEMONS:[", readyToRunQueue[j], ",", processTable[readyToRunQueue[j]].priority, "]");
 					if (j<(numberOfReadyToRunProcesses[i]-1))
 						ComputerSystem_DebugMessage(SHORTTERMSHEDULE, "s", ", ");
 				}
