@@ -21,8 +21,8 @@ unsigned int Processor_PSW_BitState(const unsigned int);
 // void Processor_SetAccumulator(int);
 // void Processor_SetPC(int);
 // void Processor_SetRegisterA(int);
-// 
-// int Processor_GetAccumulator();
+//
+int Processor_GetAccumulator();
 
 
 // Processor registers
@@ -75,7 +75,7 @@ void Processor_FetchInstruction() {
 	  memcpy((void *) (&registerIR_CPU), (void *) (&registerMBR_CPU), sizeof(MEMORYCELL));
 	  ComputerSystem_DebugMessage(HARDWARE,"csdsd",registerIR_CPU.operationCode," ",registerIR_CPU.operand1," ",registerIR_CPU.operand2);
 	}
-	else 
+	else
 	  ComputerSystem_DebugMessage(HARDWARE,"s","_ _ _");
 }
 
@@ -84,40 +84,40 @@ void Processor_FetchInstruction() {
 void Processor_DecodeAndExecuteInstruction() {
 
 	switch (registerIR_CPU.operationCode) {
-	  
+
 		// Instruction ADD
 		case 'a': registerAccumulator_CPU= registerIR_CPU.operand1 + registerIR_CPU.operand2;
 			  registerPC_CPU++;
 			  break;
-		
+
 		// Instruction SUB
 		case 's': registerAccumulator_CPU= registerIR_CPU.operand1 - registerIR_CPU.operand2;
 			  registerPC_CPU++;
 			  break;
-		
+
 		// Instruction DIV
 		case 'd': if (registerIR_CPU.operand2 == 0)
-				  Processor_RaiseInterrupt(EXCEPTION_BIT); 
+				  Processor_RaiseInterrupt(EXCEPTION_BIT);
 			  else {
 				  registerAccumulator_CPU=registerIR_CPU.operand1 / registerIR_CPU.operand2;
 				  registerPC_CPU++;
 			  }
 			  break;
-			  
+
 		// Instruction TRAP
 		case 't': Processor_RaiseInterrupt(SYSCALL_BIT);
 			  registerA_CPU=registerIR_CPU.operand1;
 			  registerPC_CPU++;
 			  break;
-		
+
 		// Instruction NOP
 		case 'n': registerPC_CPU++;
 			  break;
-			  
+
 		// Instruction JUMP
 		case 'j': registerPC_CPU+= registerIR_CPU.operand1;
 			  break;
-			  
+
 		// Instruction ZJUMP
 		case 'z': if (registerAccumulator_CPU==0)
 				  registerPC_CPU+= registerIR_CPU.operand1;
@@ -165,20 +165,20 @@ void Processor_DecodeAndExecuteInstruction() {
 		// Instruction HALT
 		case 'h': Processor_ActivatePSW_Bit(POWEROFF_BIT);
 			  break;
-			  
+
 			  // Unknown instruction
-		default : 
+		default :
  		  registerPC_CPU++;
 			  break;
 	}
 	ComputerSystem_DebugMessage(HARDWARE,"sRdsRdsRds"," (PC: ",registerPC_CPU,", Accumulator: ",registerAccumulator_CPU,
 		", PSW: ", registerPSW_CPU,")\n");
 }
-	
-	
+
+
 // Hardware interrupt processing
 void Processor_ManageInterrupts() {
-  
+
 	int i;
 
 	// Interrupts are noted from bit position 1 in the IntLines register
@@ -190,7 +190,7 @@ void Processor_ManageInterrupts() {
 
 			// Copy PC and PSW registers in the system stack
 			Processor_CopyInSystemStack(MAINMEMORYSIZE-1, registerPC_CPU);
-			Processor_CopyInSystemStack(MAINMEMORYSIZE-2, registerPSW_CPU);	
+			Processor_CopyInSystemStack(MAINMEMORYSIZE-2, registerPSW_CPU);
 
 			// Call the appropriate OS interrupt-handling routine
 			interruptVectorTable[i]();
@@ -203,11 +203,11 @@ void Processor_CopyInSystemStack(int physicalMemoryAddress, int data) {
 	registerMBR_CPU.operationCode=registerMBR_CPU.operand1=registerMBR_CPU.operand2=data;
 	registerMAR_CPU=physicalMemoryAddress;
 	Buses_write_AddressBus_From_To(CPU, MAINMEMORY);
-	Buses_write_DataBus_From_To(CPU, MAINMEMORY);	
+	Buses_write_DataBus_From_To(CPU, MAINMEMORY);
 	MainMemory_writeMemory();
 }
 
-// Put the specified interrupt line to a high level 
+// Put the specified interrupt line to a high level
 void Processor_RaiseInterrupt(const unsigned int interruptNumber) {
 	unsigned int mask = 1;
 
@@ -215,7 +215,7 @@ void Processor_RaiseInterrupt(const unsigned int interruptNumber) {
 	interruptLines_CPU = interruptLines_CPU | mask;
 }
 
-// Put the specified interrupt line to a low level 
+// Put the specified interrupt line to a low level
 void Processor_ACKInterrupt(const unsigned int interruptNumber) {
 	unsigned int mask = 1;
 
@@ -262,6 +262,10 @@ unsigned int Processor_PSW_BitState(const unsigned int nbit) {
 // Getter for the registerMAR_CPU
 int Processor_GetMAR() {
   return registerMAR_CPU;
+}
+
+int Processor_GetAccumulator(){
+  return registerAccumulator_CPU;
 }
 
 // Setter for the registerMAR_CPU
