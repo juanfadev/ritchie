@@ -24,7 +24,6 @@ void Processor_SetMAR(int);
 void Processor_GetMBR(MEMORYCELL *);
 void Processor_SetMBR(MEMORYCELL *);
 int Processor_GetMBR_Value();
-int Processor_GetAccumulator();
 
 // The OS needs to access the accumulator register to restore the context of
 // the process to which the processor is being assigned and to save the context
@@ -39,5 +38,11 @@ void Processor_SetPC(int);
 // The OS needs to access register A to when executing the system call management
 // routine, so it will be able to know the invoked system call identifier
 int Processor_GetRegisterA();
+
+int Processor_GetAccumulator();
+void Processor_SetAccumulator(int);
+
+void Processor_ActivatePSW_Bit(const unsigned int);
+void Processor_DeactivatePSW_Bit(const unsigned int);
 
 #endif

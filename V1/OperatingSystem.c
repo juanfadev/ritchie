@@ -22,13 +22,15 @@ int OperatingSystem_CreateProcess(USER_PROGRAMS_DATA, int);
 int OperatingSystem_ObtainAnEntryInTheProcessTable();
 int OperatingSystem_ObtainMainMemory(int, int);
 int OperatingSystem_ShortTermScheduler();
-int OperatingSystem_ExtractFromReadyToRun();
+int OperatingSystem_ExtractFromReadyToRun(int);
 int OperatingSystem_LoadProgram(FILE *, int, int);
 int OperatingSystem_ObtainProgramSize(FILE **, char *);
 int OperatingSystem_ObtainPriority(FILE *);
 int OperatingSystem_lineBeginsWithANumber(char *);
+
 char * statesNames[5]={"NEW","READY","EXECUTING","BLOCKED","EXIT"};
 char * queuesNames[2]={"USER", "DAEMONS"};
+
 // The process table
 PCB processTable[PROCESSTABLEMAXSIZE];
 
@@ -48,39 +50,39 @@ int numberOfNotTerminatedProcesses=0;
 // Initial set of tasks of the OS
 void OperatingSystem_Initialize() {
 
-	int i, selectedProcess;
+    int i, selectedProcess;
 
-	// Initialize random feed
-	srand(time(NULL));
+    // Initialize random feed
+    srand(time(NULL));
 
-	// Process table initialization (all entries are free)
-	for (i=0; i<PROCESSTABLEMAXSIZE;i++)
-		processTable[i].busy=0;
+    // Process table initialization (all entries are free)
+    for (i=0; i<PROCESSTABLEMAXSIZE;i++)
+        processTable[i].busy=0;
 
-	// Initialization of the interrupt vector table of the processor
-	Processor_InitializeInterruptVectorTable();
+    // Initialization of the interrupt vector table of the processor
+    Processor_InitializeInterruptVectorTable();
 
-	// Create all system daemon processes
-	OperatingSystem_CreateDaemons();
+    // Create all system daemon processes
+    OperatingSystem_CreateDaemons();
 
-	if (sipID<0) {
-	  ComputerSystem_DebugMessage(SHUTDOWN, "Rs", "ERROR: Missing SIP program!\n");
-	  exit(1);
-	}
+    if (sipID<0) {
+      ComputerSystem_DebugMessage(SHUTDOWN, "Rs", "ERROR: Missing SIP program!\n");
+      exit(1);
+    }
 
-	// Create all user processes from the information given in the command line
-	OperatingSystem_LongTermScheduler();
+    // Create all user processes from the information given in the command line
+    OperatingSystem_LongTermScheduler();
 
-	// At least, one user process has been created
-	// Select the first process that is going to use the processor
-	selectedProcess=OperatingSystem_ShortTermScheduler();
 
-	selectedProcess=OperatingSystem_ShortTermScheduler();
+    // At least, one user process has been created
+    // Select the first process that is going to use the processor
+    selectedProcess=OperatingSystem_ShortTermScheduler();
     if (numberOfReadyToRunProcesses[USERPROCESSQUEUE] == 0) {
         processTable[selectedProcess].copyOfPCRegister = 3;
     }
-	// Assign the processor to the selected process
-	OperatingSystem_Dispatch(selectedProcess);
+
+    // Assign the processor to the selected process
+    OperatingSystem_Dispatch(selectedProcess);
 
 }
 
@@ -88,10 +90,10 @@ void OperatingSystem_Initialize() {
 // The System Idle Process uses the CPU whenever a user process is able to use it
 void OperatingSystem_CreateDaemons() {
 
-	USER_PROGRAMS_DATA systemIdleProcess;
+    USER_PROGRAMS_DATA systemIdleProcess;
 
-	systemIdleProcess.executableName="SystemIdleProcess";
-	sipID=OperatingSystem_CreateProcess(systemIdleProcess, DAEMONSQUEUE);
+    systemIdleProcess.executableName="SystemIdleProcess";
+    sipID=OperatingSystem_CreateProcess(systemIdleProcess, DAEMONSQUEUE);
 }
 
 
@@ -99,80 +101,90 @@ void OperatingSystem_CreateDaemons() {
 // Initially, it creates a process from each program specified in the command line
 int OperatingSystem_LongTermScheduler() {
 
-	int PID;
- 	int i=0;
-	int numberOfSuccessfullyCreatedProcesses=0;
+    int PID;
+     int i=0;
+    int numberOfSuccessfullyCreatedProcesses=0;
 
-	while (userProgramsList[i]!=NULL && i<USERPROGRAMSMAXNUMBER) {
-		PID=OperatingSystem_CreateProcess(*userProgramsList[i],USERPROCESSQUEUE);
-		if (PID==NOFREEENTRY){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","There   are   not   free   entries   in   the   process   table   for   the   program [",userProgramsList[i],"]");
-		}
-		else if (PID==PROGRAMDOESNOTEXIST){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program [",userProgramsList[i],"] is not valid (Program does not exist)");
-		}
-		else if (PID==PROGRAMNOTVALID){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program [",userProgramsList[i],"] is not valid (Invalid priority or size)");
-		}
-		else if (PID==TOOBIGPROCESS){
-			ComputerSystem_DebugMessage(ERROR, "GsGsGs","Program [",userProgramsList[i],"] is too big");
-		}
-		else{
-			numberOfSuccessfullyCreatedProcesses++;
-			ComputerSystem_DebugMessage(INIT,"GsGdGsGsGs","Process [",PID,"] created from program [",userProgramsList[i]->executableName,"]\n");
-			i++;
-		}
-	}
-	numberOfNotTerminatedProcesses+=numberOfSuccessfullyCreatedProcesses;
+    while (userProgramsList[i]!=NULL && i<USERPROGRAMSMAXNUMBER) {
+        PID=OperatingSystem_CreateProcess(*userProgramsList[i], USERPROCESSQUEUE);
+                if (PID == NOFREEENTRY) {
+                    ComputerSystem_DebugMessage(ERROR, "sss", "ERROR: There are not free entries in the process table for the program [", userProgramsList[i]->executableName, "]\n");
+                } else if (PID == PROGRAMNOTVALID) {
+                    ComputerSystem_DebugMessage(ERROR, "sss", "ERROR: Program [", userProgramsList[i]->executableName, "] is not valid (invalid priority and/or size)\n");
+                } else if (PID == PROGRAMDOESNOTEXIST) {
+                    ComputerSystem_DebugMessage(ERROR, "sss", "ERROR: Program [", userProgramsList[i]->executableName, "] is not valid (program does not exist)\n");
+                } else if (PID == TOOBIGPROCESS) {
+                    ComputerSystem_DebugMessage(ERROR, "sss", "ERROR: Program [", userProgramsList[i]->executableName, "] is too big\n");
+                } else {
+            numberOfSuccessfullyCreatedProcesses++;
+                }
+        i++;
+    }
+    numberOfNotTerminatedProcesses+=numberOfSuccessfullyCreatedProcesses;
 
-	// Return the number of succesfully created processes
-	return numberOfSuccessfullyCreatedProcesses;
+    // Return the number of succesfully created processes
+    return numberOfSuccessfullyCreatedProcesses;
+}
+
+void OperatingSystem_PrintReadyToRunQueue() {
+    ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "s", "Ready-to-run processes queue:\n");
+
+    int n = 0;
+    for (n = 0; n < NUMBEROFQUEUES; n++) {
+        int i = 0;
+        ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "sss", "\t", queuesNames[n], ": ");
+        while (i < numberOfReadyToRunProcesses[n]) {
+            ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "sdsdss", "[", readyToRunQueue[n][i], ", ", processTable[readyToRunQueue[n][i]].priority ,"]", (i == numberOfReadyToRunProcesses[n] - 1 ? "" : ", "));
+            i++;
+        }
+    ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "s", "\n");
+    }
 }
 
 
 // This function creates a process from an executable program
 int OperatingSystem_CreateProcess(USER_PROGRAMS_DATA executableProgram, int queue) {
 
-	int PID;
-	int processSize;
-	int loadingPhysicalAddress;
-	int priority;
-	int loadProgram;
-	FILE *programFile;
+    int PID;
+    int processSize;
+    int loadingPhysicalAddress;
+    int priority;
+    FILE *programFile;
 
-	// Obtain a process ID
-	PID=OperatingSystem_ObtainAnEntryInTheProcessTable();
-	if (PID==NOFREEENTRY){
-		return NOFREEENTRY;
-	}
+    // Obtain a process ID
+    PID=OperatingSystem_ObtainAnEntryInTheProcessTable();
+        if (PID == NOFREEENTRY) {
+            return NOFREEENTRY;
+        }
 
-	// Obtain the memory requirements of the program
-	processSize=OperatingSystem_ObtainProgramSize(&programFile, executableProgram.executableName);
-		if (processSize==PROGRAMNOTVALID)
-			return PROGRAMNOTVALID;
-		else if (processSize==PROGRAMDOESNOTEXIST){
-			return PROGRAMDOESNOTEXIST;
-		}
+    // Obtain the memory requirements of the program
+    processSize=OperatingSystem_ObtainProgramSize(&programFile, executableProgram.executableName);
+        if (processSize == PROGRAMNOTVALID || processSize == PROGRAMDOESNOTEXIST) {
+            return processSize;
+        }
 
-	// Obtain the priority for the process
-	priority=OperatingSystem_ObtainPriority(programFile);
-	if (priority==PROGRAMNOTVALID){
-		return PROGRAMNOTVALID;
-	}
-	// Obtain enough memory space
- 	loadingPhysicalAddress=OperatingSystem_ObtainMainMemory(processSize, PID);
-	if (loadingPhysicalAddress==TOOBIGPROCESS){
-		return TOOBIGPROCESS;
-	}
-	// Load program in the allocated memory
-	int loadResult=OperatingSystem_LoadProgram(programFile, loadingPhysicalAddress, processSize);
-	if (loadResult==PROGRAMNOTVALID){
-		return TOOBIGPROCESS;
-	}
-	// PCB initialization
-	OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, queue);
+    // Obtain the priority for the process
+    priority=OperatingSystem_ObtainPriority(programFile);
+        if (priority == PROGRAMNOTVALID) {
+            return PROGRAMNOTVALID;
+        }
 
-	return PID;
+    // Obtain enough memory space
+     loadingPhysicalAddress=OperatingSystem_ObtainMainMemory(processSize, PID);
+        if (loadingPhysicalAddress == TOOBIGPROCESS) {
+            return TOOBIGPROCESS;
+        }
+
+    // Load program in the allocated memory
+    int loadResult = OperatingSystem_LoadProgram(programFile, loadingPhysicalAddress, processSize);
+        if (loadResult == PROGRAMNOTVALID) {
+            return TOOBIGPROCESS;
+        }
+    ComputerSystem_DebugMessage(INIT,"GsGdGsGsGs","Process [",PID,"] created from program [", executableProgram.executableName,"]\n");
+    // PCB initialization
+    OperatingSystem_PCBInitialization(PID, loadingPhysicalAddress, processSize, priority, queue);
+
+    return PID;
 }
 
 
@@ -180,18 +192,18 @@ int OperatingSystem_CreateProcess(USER_PROGRAMS_DATA executableProgram, int queu
 // will be used as the process identifier
 int OperatingSystem_ObtainAnEntryInTheProcessTable() {
 
-	int orig=INITIALPID?rand()%PROCESSTABLEMAXSIZE:INITIALPID;
-	int index=0;
-	int entry;
+    int orig=INITIALPID?rand()%PROCESSTABLEMAXSIZE:INITIALPID;
+    int index=0;
+    int entry;
 
-	while (index<PROCESSTABLEMAXSIZE) {
-	  entry = (orig+index)%PROCESSTABLEMAXSIZE;
-		if (processTable[entry].busy==0)
-			return entry;
-		else
-			index++;
-	}
-	return NOFREEENTRY;
+    while (index<PROCESSTABLEMAXSIZE) {
+      entry = (orig+index)%PROCESSTABLEMAXSIZE;
+        if (processTable[entry].busy==0)
+            return entry;
+        else
+            index++;
+    }
+    return NOFREEENTRY;
 }
 
 
@@ -199,40 +211,37 @@ int OperatingSystem_ObtainAnEntryInTheProcessTable() {
 // always obtains the chunk whose position in memory is equal to the processor identifier
 int OperatingSystem_ObtainMainMemory(int processSize, int PID) {
 
- 	if (processSize>MAINMEMORYSECTIONSIZE)
-		return TOOBIGPROCESS;
+     if (processSize>MAINMEMORYSECTIONSIZE)
+        return TOOBIGPROCESS;
 
- 	return PID*MAINMEMORYSECTIONSIZE;
+     return PID*MAINMEMORYSECTIONSIZE;
 }
 
 
 // Assign initial values to all fields inside the PCB
 void OperatingSystem_PCBInitialization(int PID, int initialPhysicalAddress, int processSize, int priority, int queue) {
 
-	processTable[PID].busy=1;
-	processTable[PID].initialPhysicalAddress=initialPhysicalAddress;
-	processTable[PID].processSize=processSize;
-	processTable[PID].copyOfPCRegister=0;
-	processTable[PID].priority=priority;
-	processTable[PID].state=NEW;
-	processTable[PID].queueID=queue;
-	ComputerSystem_DebugMessage(SYSPROC,"sdsss","New process [",PID,"] moving to the ", statesNames[NEW], " state\n");
-	OperatingSystem_MoveToTheREADYState(PID);
+    processTable[PID].busy=1;
+    processTable[PID].initialPhysicalAddress=initialPhysicalAddress;
+    processTable[PID].processSize=processSize;
+    processTable[PID].copyOfPCRegister=0;
+    processTable[PID].priority=priority;
+    processTable[PID].state=NEW;
+    processTable[PID].queueID = queue;
+    ComputerSystem_DebugMessage(SYSPROC, "sdsss", "Process [", PID, "] moving to the [", statesNames[NEW], "] state\n");
+    OperatingSystem_MoveToTheREADYState(PID);
 }
 
 // Move a process to the READY state: it will be inserted, depending on its priority, in
 // a queue of identifiers of READY processes
-
-//It doesnt execute!!
 void OperatingSystem_MoveToTheREADYState(int PID) {
-
-	int prevState = processTable[PID].state;
-	if (Heap_add(PID, readyToRunQueue[processTable[PID].queueID],QUEUE_PRIORITY ,numberOfReadyToRunProcesses[processTable[PID].queueID] ,PROCESSTABLEMAXSIZE)>=0) {
-	  numberOfReadyToRunProcesses[processTable[PID].queueID]++;
-	  processTable[PID].state=READY;
-	}
-	OperatingSystem_PrintReadyToRunQueue();
-	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",processTable[PID].state , "state\n");
+        int oldstate =       processTable[PID].state;
+    if (Heap_add(PID, readyToRunQueue[processTable[PID].queueID], QUEUE_PRIORITY, numberOfReadyToRunProcesses[processTable[PID].queueID] ,PROCESSTABLEMAXSIZE)>=0) {
+      numberOfReadyToRunProcesses[processTable[PID].queueID]++;
+      processTable[PID].state=READY;
+    }
+    OperatingSystem_PrintReadyToRunQueue();
+    ComputerSystem_DebugMessage(SYSPROC, "sdsssss", "Process [", PID, "] moving from the [", statesNames[oldstate], "] state to the [", statesNames[processTable[PID].state], "] state\n");
 }
 
 // The STS is responsible of deciding which process to execute when specific events occur.
@@ -240,44 +249,43 @@ void OperatingSystem_MoveToTheREADYState(int PID) {
 // depending on processes priority, the STS just selects the process in front of the READY queue
 int OperatingSystem_ShortTermScheduler() {
 
-	int selectedProcess;
-	if (readyToRunQueue[USERPROCESSQUEUE]>0){
-		selectedProcess=OperatingSystem_ExtractFromReadyToRun(USERPROCESSQUEUE);
-	}
-	else{
-		selectedProcess=OperatingSystem_ExtractFromReadyToRun(DAEMONSQUEUE);
-	}
+    int selectedProcess;
 
-	return selectedProcess;
+    if (numberOfReadyToRunProcesses[USERPROCESSQUEUE] > 0) {
+        selectedProcess=OperatingSystem_ExtractFromReadyToRun(USERPROCESSQUEUE);
+    }
+    else {
+        selectedProcess=OperatingSystem_ExtractFromReadyToRun(DAEMONSQUEUE);
+    }
+
+    return selectedProcess;
 }
 
 
 // Return PID of more priority process in the READY queue
 int OperatingSystem_ExtractFromReadyToRun(int queue) {
 
-	int selectedProcess=NOPROCESS;
-	//if userqueue has a process select it, else select a daemon one
-	selectedProcess=Heap_poll(readyToRunQueue[queue],QUEUE_PRIORITY ,numberOfReadyToRunProcesses[queue]);
-	if (selectedProcess>=0)
-	  numberOfReadyToRunProcesses[queue]--;
+    int selectedProcess=NOPROCESS;
 
-	// Return most priority process or NOPROCESS if empty queue
-	return selectedProcess;
+    selectedProcess=Heap_poll(readyToRunQueue[queue],QUEUE_PRIORITY ,numberOfReadyToRunProcesses[queue]);
+    if (selectedProcess>=0)
+      numberOfReadyToRunProcesses[queue]--;
+
+    // Return most priority process or NOPROCESS if empty queue
+    return selectedProcess;
 }
 
 // Function that assigns the processor to a process
 void OperatingSystem_Dispatch(int PID) {
-
-	// Modify hardware registers with appropriate values for the process identified by PID
-	OperatingSystem_RestoreContext(PID);
-	// The process identified by PID becomes the current executing process
-	executingProcessID=PID;
-	// Change the process' state
-	int prevState= processTable[PID].state;
-	processTable[PID].state=EXECUTING;
-	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",processTable[PID].state , "state\n");
-
-	if (processTable[PID].queueID == USERPROCESSQUEUE) {
+    int oldstate = processTable[PID].state;
+    // Modify hardware registers with appropriate values for the process identified by PID
+    OperatingSystem_RestoreContext(PID);
+    // The process identified by PID becomes the current executing process
+    executingProcessID=PID;
+    // Change the process' state
+    processTable[PID].state=EXECUTING;
+        ComputerSystem_DebugMessage(SYSPROC, "sdsssss", "Process [", PID, "] moving from the [", statesNames[oldstate], "] state to the [", statesNames[processTable[PID].state], "] state\n");
+    if (processTable[PID].queueID == USERPROCESSQUEUE) {
         Processor_DeactivatePSW_Bit(EXECUTION_MODE_BIT);
     } else {
         Processor_ActivatePSW_Bit(EXECUTION_MODE_BIT);
@@ -288,42 +296,36 @@ void OperatingSystem_Dispatch(int PID) {
 // Modify hardware registers with appropriate values for the process identified by PID
 void OperatingSystem_RestoreContext(int PID) {
 
-	// New values for the CPU registers are obtained from the PCB
-	Processor_SetPC(processTable[PID].copyOfPCRegister);
-	// Same thing for the MMU registers
-	MMU_SetBase(processTable[PID].initialPhysicalAddress);
-	MMU_SetLimit(processTable[PID].processSize);
+    // New values for the CPU registers are obtained from the PCB
+    Processor_SetPC(processTable[PID].copyOfPCRegister);
+    Processor_SetAccumulator(processTable[PID].copyOfAccumulator);
+    // Same thing for the MMU registers
+    MMU_SetBase(processTable[PID].initialPhysicalAddress);
+    MMU_SetLimit(processTable[PID].processSize);
 }
 
 
 // Function invoked when the executing process leaves the CPU
 void OperatingSystem_PreemptRunningProcess() {
 
-	int PID;
-	int nextState;
-	// Save in the process' PCB essential values stored in hardware registers and the system stack
-	OperatingSystem_SaveContext(executingProcessID);
-	// Change the process' state
-	PID=executingProcessID;
-	// Change the process' state
-	int prevState= processTable[PID].state;
-	OperatingSystem_MoveToTheREADYState(executingProcessID);
-	nextState= processTable[executingProcessID].state;
-	// The processor is not assigned until the OS selects another process
-	ComputerSystem_DebugMessage(SYSPROC,"sdsssss","Process [",executingProcessID,"] moving from the ",prevState ,"state to the ",nextState , "state\n");
-
-	executingProcessID=NOPROCESS;
+    // Save in the process' PCB essential values stored in hardware registers and the system stack
+    OperatingSystem_SaveContext(executingProcessID);
+    // Change the process' state
+    OperatingSystem_MoveToTheREADYState(executingProcessID);
+    // The processor is not assigned until the OS selects another process
+    executingProcessID=NOPROCESS;
 }
 
 // Save in the process' PCB essential values stored in hardware registers and the system stack
 void OperatingSystem_SaveContext(int PID) {
 
-	Processor_SetMAR(MAINMEMORYSIZE-1); // Load PC saved for interrupt manager
+    Processor_SetMAR(MAINMEMORYSIZE-1); // Load PC saved for interrupt manager
 
-	Buses_write_AddressBus_From_To(CPU, MAINMEMORY);
-	MainMemory_readMemory();
-	processTable[PID].copyOfPCRegister= Processor_GetMBR_Value();
-	processTable[PID].copyOfAccumulator= Processor_GetAccumulator();
+    Buses_write_AddressBus_From_To(CPU, MAINMEMORY);
+    MainMemory_readMemory();
+    processTable[PID].copyOfPCRegister= Processor_GetMBR_Value();
+    processTable[PID].copyOfAccumulator = Processor_GetAccumulator();
+
 }
 
 
@@ -340,113 +342,117 @@ void OperatingSystem_HandleException() {
 // All tasks regarding the removal of the process
 void OperatingSystem_TerminateProcess() {
 
-	int selectedProcess;
+    int selectedProcess;
+    int oldstate = processTable[executingProcessID].state;
+    processTable[executingProcessID].state=EXIT;
 
-	processTable[executingProcessID].state=EXIT;
+    ComputerSystem_DebugMessage(SYSPROC, "sdsssss", "Process [", executingProcessID, "] moving from the [", statesNames[oldstate], "] state to the [", statesNames[processTable[executingProcessID].state], "] state\n");
 
-	// One more process that has terminated
-	numberOfNotTerminatedProcesses--;
+    // One more process that has terminated
+    numberOfNotTerminatedProcesses--;
 
-	if (numberOfNotTerminatedProcesses<=0) {
-		// Simsulation must finish (done by modifying the PC of the System Idle Process so it points to its 'halt' instruction,
-		// located at the last memory position used by that process, and dispatching sipId (next SHORTTERMSCHEDULEd)
-		processTable[sipID].copyOfPCRegister=processTable[sipID].processSize-1;
-	}
-	// Select the next process to execute (sipID if no more user processes)
-	selectedProcess=OperatingSystem_ShortTermScheduler();
-	// Assign the processor to that process
-	OperatingSystem_Dispatch(selectedProcess);
+    if (numberOfNotTerminatedProcesses<=0) {
+        // Simulation must finish (done by modifying the PC of the System Idle Process so it points to its 'halt' instruction,
+        // located at the last memory position used by that process, and dispatching sipId (next ShortTermSheduled)
+        processTable[sipID].copyOfPCRegister=processTable[sipID].processSize-1;
+    }
+    // Select the next process to execute (sipID if no more user processes)
+    selectedProcess=OperatingSystem_ShortTermScheduler();
+    // Assign the processor to that process
+    OperatingSystem_Dispatch(selectedProcess);
 }
 
 
 // System call management routine
 void OperatingSystem_HandleSystemCall() {
 
-	int systemCallID;
-	int selectedProcess;
-	int queue;
-	// Register A contains the identifier of the issued system call
-	systemCallID=Processor_GetRegisterA();
+    int systemCallID;
 
-	switch (systemCallID) {
+    // Register A contains the identifier of the issued system call
+    systemCallID=Processor_GetRegisterA();
+    int oldProcess;
+    int newProcess;
+    int queue;
+    switch (systemCallID) {
+      case SYSCALL_PRINTEXECPID:
+        ComputerSystem_DebugMessage(SYSPROC,"RsRdRs","Process [",executingProcessID,"] has the processor assigned\n");
+        break;
 
-	  case SYSCALL_PRINTEXECPID:
-		ComputerSystem_DebugMessage(SYSPROC,"RsRdRs","Process [",executingProcessID,"] has the processor assigned\n");
-		break;
-
-	  case SYSCALL_END:
-		ComputerSystem_DebugMessage(SYSPROC,"RsRdRs","Process [",executingProcessID,"] has requested to terminate\n");
-		OperatingSystem_TerminateProcess();
-		break;
-		case SYSCALL_YIELD:
-		queue=processTable[executingProcessID].queueID;
-		if((numberOfReadyToRunProcesses[queue]>0) && (processTable[executingProcessID].priority == processTable[readyToRunQueue[queue][0]].priority)){
-			selectedProcess = OperatingSystem_ExtractFromReadyToRun(queue);
-			ComputerSystem_DebugMessage(SYSPROC, "sGdsGds", "Process [", executingProcessID,"] transfers the control of the processor to processs [", selectedProcess, "]\n");
-			OperatingSystem_PreemptRunningProcess();
-
-			OperatingSystem_Dispatch(selectedProcess);
-		}
-		break;
-	}
+      case SYSCALL_END:
+        ComputerSystem_DebugMessage(SYSPROC,"RsRdRs","Process [",executingProcessID,"] has requested to terminate\n");
+        OperatingSystem_TerminateProcess();
+        break;
+      case SYSCALL_YIELD:
+        queue = processTable[executingProcessID].queueID;
+        if ((numberOfReadyToRunProcesses[queue] > 0) &&
+            (processTable[executingProcessID].priority == processTable[readyToRunQueue[queue][0]].priority)) {
+        oldProcess = executingProcessID;
+        newProcess = OperatingSystem_ShortTermScheduler();
+        ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"RsRdRsds","Process [",oldProcess,"] transfers control of the processor to process [", newProcess, "]\n");
+        // Stop current process
+        OperatingSystem_PreemptRunningProcess();
+        // Assign the processor to the selected process
+        OperatingSystem_Dispatch(newProcess);
+        }
+    }
 }
 
 
 // Returns the size of the program, stored in the program file
 int OperatingSystem_ObtainProgramSize(FILE **programFile, char *program) {
 
-	char lineRead[MAXLINELENGTH];
-	int isComment=1;
-	int programSize;
+    char lineRead[MAXLINELENGTH];
+    int isComment=1;
+    int programSize;
 
-	*programFile= fopen(program, "r");
+    *programFile= fopen(program, "r");
 
-	// Check if programFile exists
-	if (*programFile==NULL)
-		return PROGRAMDOESNOTEXIST;
+    // Check if programFile exists
+    if (*programFile==NULL)
+        return PROGRAMDOESNOTEXIST;
 
-	// Read the first number as the size of the program. Skip all comments.
-	while (isComment==1) {
-		if (fgets(lineRead, MAXLINELENGTH, *programFile) == NULL)
-		      return PROGRAMNOTVALID;
-		else
-		      if (lineRead[0]!='/') { // Line IS NOT a comment
-			    isComment=0;
-			    if (OperatingSystem_lineBeginsWithANumber(lineRead))
-				  programSize=atoi(strtok(lineRead," "));
-			    else
-				  return PROGRAMNOTVALID;
-		      }
-	}
-	// Only sizes above 0 are allowed
-	if (programSize<=0)
-	      return PROGRAMNOTVALID;
-	else
-	      return programSize;
+    // Read the first number as the size of the program. Skip all comments.
+    while (isComment==1) {
+        if (fgets(lineRead, MAXLINELENGTH, *programFile) == NULL)
+              return PROGRAMNOTVALID;
+        else
+              if (lineRead[0]!='/') { // Line IS NOT a comment
+                isComment=0;
+                if (OperatingSystem_lineBeginsWithANumber(lineRead))
+                  programSize=atoi(strtok(lineRead," "));
+                else
+                  return PROGRAMNOTVALID;
+              }
+    }
+    // Only sizes above 0 are allowed
+    if (programSize<=0)
+          return PROGRAMNOTVALID;
+    else
+          return programSize;
 }
 
 
 // Returns the priority of the program, stored in the program file
 int OperatingSystem_ObtainPriority(FILE *programFile) {
 
-	char lineRead[MAXLINELENGTH];
-	int isComment=1;
-	int processPriority;
+    char lineRead[MAXLINELENGTH];
+    int isComment=1;
+    int processPriority;
 
-	// Read the second number as the priority of the program. Skip all comments.
-	while (isComment==1) {
-		if (fgets(lineRead, MAXLINELENGTH, programFile) == NULL)
-		      return PROGRAMNOTVALID;
-		else
-		      if (lineRead[0]!='/') { // Line IS NOT a comment
-			    isComment=0;
-			    if (OperatingSystem_lineBeginsWithANumber(lineRead))
-				  processPriority=atoi(strtok(lineRead," "));
-			    else
-				  return PROGRAMNOTVALID;
-		      }
-	}
-	return processPriority;
+    // Read the second number as the priority of the program. Skip all comments.
+    while (isComment==1) {
+        if (fgets(lineRead, MAXLINELENGTH, programFile) == NULL)
+              return PROGRAMNOTVALID;
+        else
+              if (lineRead[0]!='/') { // Line IS NOT a comment
+                isComment=0;
+                if (OperatingSystem_lineBeginsWithANumber(lineRead))
+                  processPriority=atoi(strtok(lineRead," "));
+                else
+                  return PROGRAMNOTVALID;
+              }
+    }
+    return processPriority;
 }
 
 
@@ -457,75 +463,60 @@ int OperatingSystem_ObtainPriority(FILE *programFile) {
 
 int OperatingSystem_LoadProgram(FILE *programFile, int initialAddress, int size) {
 
-	char lineRead[MAXLINELENGTH];
-	char *token0, *token1, *token2;
-	MEMORYCELL *data = (MEMORYCELL *) malloc(sizeof(MEMORYCELL));
+    char lineRead[MAXLINELENGTH];
+    char *token0, *token1, *token2;
+    MEMORYCELL *data = (MEMORYCELL *) malloc(sizeof(MEMORYCELL));
 
-	Processor_SetMAR(initialAddress);
-	int finalAddress = initialAddress + size;
-	while (fgets(lineRead, MAXLINELENGTH, programFile) != NULL) {
-		// REMARK: if lineRead is greater than MAXLINELENGTH in number of characters, the program
-		// loading does not work
-		data->operationCode=' ';data->operand1=data->operand2=0;
-		token0=strtok(lineRead," ");
-		if ((token0!=NULL) && (token0[0]!='/')) {
-			// I have an instruction with, at least, an operation code
-			data->operationCode=tolower(token0[0]);
-			token1=strtok(NULL," ");
-			if ((token1!=NULL) && (token1[0]!='/')) {
-				// I have an instruction with, at least, an operand
-				data->operand1=atoi(token1);
-				token2=strtok(NULL," ");
-				if ((token2!=NULL) && (token2[0]!='/')) {
-				  // The read line is similar to 'sum 2 3 //coment'
-				  // I have an instruction with two operands
-				  data->operand2=atoi(token2);
-				}
-			}
+    Processor_SetMAR(initialAddress);
+    int finalAddress = initialAddress + size;
+    while (fgets(lineRead, MAXLINELENGTH, programFile) != NULL) {
+        // REMARK: if lineRead is greater than MAXLINELENGTH in number of characters, the program
+        // loading does not work
+        data->operationCode=' ';data->operand1=data->operand2=0;
+        token0=strtok(lineRead," ");
+        if ((token0!=NULL) && (token0[0]!='/')) {
+            // I have an instruction with, at least, an operation code
+            data->operationCode=tolower(token0[0]);
+            token1=strtok(NULL," ");
+            if ((token1!=NULL) && (token1[0]!='/')) {
+                // I have an instruction with, at least, an operand
+                data->operand1=atoi(token1);
+                token2=strtok(NULL," ");
+                if ((token2!=NULL) && (token2[0]!='/')) {
+                  // The read line is similar to 'sum 2 3 //coment'
+                  // I have an instruction with two operands
+                  data->operand2=atoi(token2);
+                }
+            }
 
-		      // More instructions than size...
-			if (Processor_GetMAR() == finalAddress) {
-				  free(data);
-				  return PROGRAMNOTVALID;
-			  }
+              // More instructions than size...
+            if (Processor_GetMAR() == finalAddress) {
+                  free(data);
+                  return PROGRAMNOTVALID;
+              }
 
-			  Processor_SetMBR(data);
-		      // Send data to main memory using the system buses
-		      Buses_write_DataBus_From_To(CPU, MAINMEMORY);
-		      Buses_write_AddressBus_From_To(CPU, MAINMEMORY);
-		      // Tell the main memory controller to write
-		      MainMemory_writeMemory();
-		      Processor_SetMAR(Processor_GetMAR()+1);
-		}
-	}
-	free(data);
-	return SUCCESS;
+              Processor_SetMBR(data);
+              // Send data to main memory using the system buses
+              Buses_write_DataBus_From_To(CPU, MAINMEMORY);
+              Buses_write_AddressBus_From_To(CPU, MAINMEMORY);
+              // Tell the main memory controller to write
+              MainMemory_writeMemory();
+              Processor_SetMAR(Processor_GetMAR()+1);
+        }
+    }
+    free(data);
+    return SUCCESS;
 }
 
 // Auxiliar for check that line begins with positive number
 int OperatingSystem_lineBeginsWithANumber(char * line) {
-	int i;
+    int i;
 
-	for (i=0; i<strlen(line) && line[i]==' '; i++); // Don't consider blank spaces
-	// If is there a digit number...
-	if (i<strlen(line) && isdigit(line[i]))
-		// It's a positive number
-		return 1;
-	else
-		return 0;
-}
-
-void OperatingSystem_PrintReadyToRunQueue() {
-    ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "s", "Ready-to-run processes queue:\n");
-
-    int n = 0;
-    for (n = 0; n < NUMBEROFQUEUES; n++) {
-        int i = 0;
-        ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "sss", "\t", queuesNames[n], ": ");
-        while (i < numberOfReadyToRunProcesses[n]) {
-            ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "sdsdss", "[", readyToRunQueue[n][i], ", ", processTable[readyToRunQueue[n][i]].priority ,"]", (i == numberOfReadyToRunProcesses[n] - 1 ? "" : ", "));
-            i++;
-        }
-    ComputerSystem_DebugMessage(SHORTTERMSCHEDULE, "s", "\n");
-    }
+    for (i=0; i<strlen(line) && line[i]==' '; i++); // Don't consider blank spaces
+    // If is there a digit number...
+    if (i<strlen(line) && isdigit(line[i]))
+        // It's a positive number
+        return 1;
+    else
+        return 0;
 }
