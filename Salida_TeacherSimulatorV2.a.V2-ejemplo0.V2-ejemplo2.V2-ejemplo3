@@ -1,0 +1,685 @@
+[0] User program list:
+	Program [V2-ejemplo0] with arrival time [0]
+	Program [V2-ejemplo2] with arrival time [0]
+	Program [V2-ejemplo3] with arrival time [0]
+[0] Activating PSW bit: EXECUTION_MODE_BIT
+	[0] New process [0] moving to the [NEW] state
+	[0] Process [0] moving from the [NEW] state to the [READY] state
+	[0] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+	[0] New process [1] moving to the [NEW] state
+	[0] Process [1] moving from the [NEW] state to the [READY] state
+	[0] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: [0, 100]
+	[0] Process [1] created from program [V2-ejemplo0]
+	[0] New process [2] moving to the [NEW] state
+	[0] Process [2] moving from the [NEW] state to the [READY] state
+	[0] Ready-to-run processes queue:
+		USER: [1, 5], [2, 10]
+		DAEMONS: [0, 100]
+	[0] Process [2] created from program [V2-ejemplo2]
+	[0] New process [3] moving to the [NEW] state
+	[0] Process [3] moving from the [NEW] state to the [READY] state
+	[0] Ready-to-run processes queue:
+		USER: [1, 5], [2, 10], [3, 10]
+		DAEMONS: [0, 100]
+	[0] Process [3] created from program [V2-ejemplo3]
+	[0] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[0] Deactivating PSW bit: EXECUTION_MODE_BIT
+[1] a 10 0 (PC: 1, Accumulator: 10, PSW: 0)
+[2] w 10 0 (PC: 2, Accumulator: 10, PSW: 0)
+[3] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[3] Activating PSW bit: EXECUTION_MODE_BIT
+	[3] Clock interrupt number [1] has occurred
+	[3] Deactivating PSW bit: EXECUTION_MODE_BIT
+[5] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[5] Activating PSW bit: EXECUTION_MODE_BIT
+	[6] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[6] Process [3] moving from the [READY] state to the [EXECUTING] state
+	[6] Ready-to-run processes queue:
+		USER: [2, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 7]
+		Running Process Information: [PID:3, Priority: 10, WakeUp: 0, Queue: USER]
+	[6] Deactivating PSW bit: EXECUTION_MODE_BIT
+[6] Activating PSW bit: EXECUTION_MODE_BIT
+	[6] Clock interrupt number [2] has occurred
+	[6] Deactivating PSW bit: EXECUTION_MODE_BIT
+[8] a 5 0 (PC: 1, Accumulator: 5, PSW: 0)
+[9] z 4 0 (PC: 2, Accumulator: 5, PSW: 0)
+[9] Activating PSW bit: EXECUTION_MODE_BIT
+	[9] Clock interrupt number [3] has occurred
+	[9] Deactivating PSW bit: EXECUTION_MODE_BIT
+[11] t 4 0 (PC: 3, Accumulator: 5, PSW: 0)
+[11] Activating PSW bit: EXECUTION_MODE_BIT
+	[12] Process [3] transfers control of the processor to process [2]
+	[12] Process [3] moving from the [EXECUTING] state to the [READY] state
+	[12] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+	[12] Process [2] moving from the [READY] state to the [EXECUTING] state
+	[12] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 7]
+		Running Process Information: [PID:2, Priority: 10, WakeUp: 0, Queue: USER]
+	[12] Deactivating PSW bit: EXECUTION_MODE_BIT
+[12] Activating PSW bit: EXECUTION_MODE_BIT
+	[12] Clock interrupt number [4] has occurred
+	[12] Deactivating PSW bit: EXECUTION_MODE_BIT
+[14] a 15 0 (PC: 1, Accumulator: 15, PSW: 0)
+[15] z 3 0 (PC: 2, Accumulator: 15, PSW: 0)
+[15] Activating PSW bit: EXECUTION_MODE_BIT
+	[15] Clock interrupt number [5] has occurred
+	[15] Deactivating PSW bit: EXECUTION_MODE_BIT
+[17] i -1 0 (PC: 3, Accumulator: 14, PSW: 0)
+[18] j -2 0 (PC: 1, Accumulator: 14, PSW: 0)
+[18] Activating PSW bit: EXECUTION_MODE_BIT
+	[18] Clock interrupt number [6] has occurred
+	[18] Deactivating PSW bit: EXECUTION_MODE_BIT
+[20] z 3 0 (PC: 2, Accumulator: 14, PSW: 0)
+[21] i -1 0 (PC: 3, Accumulator: 13, PSW: 0)
+[21] Activating PSW bit: EXECUTION_MODE_BIT
+	[21] Clock interrupt number [7] has occurred
+	[21] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[21] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[21] Process [2] moving from the [EXECUTING] state to the [READY] state
+	[21] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10], [2, 10]
+		DAEMONS: [0, 100]
+	[21] Process [2] is thrown out of the processor by process [1]
+	[21] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[21] Ready-to-run processes queue:
+		USER: [2, 10], [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 7, Queue: USER]
+	[21] Deactivating PSW bit: EXECUTION_MODE_BIT
+[23] m -1 10 (PC: 5, Accumulator: 9, PSW: 0)
+[24] z 2 0 (PC: 6, Accumulator: 9, PSW: 0)
+[24] Activating PSW bit: EXECUTION_MODE_BIT
+	[24] Clock interrupt number [8] has occurred
+	[24] Deactivating PSW bit: EXECUTION_MODE_BIT
+[26] j -5 0 (PC: 1, Accumulator: 9, PSW: 0)
+[27] w 10 0 (PC: 2, Accumulator: 9, PSW: 0)
+[27] Activating PSW bit: EXECUTION_MODE_BIT
+	[27] Clock interrupt number [9] has occurred
+	[27] Deactivating PSW bit: EXECUTION_MODE_BIT
+[29] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[30] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[30] Activating PSW bit: EXECUTION_MODE_BIT
+	[31] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[31] Process [2] moving from the [READY] state to the [EXECUTING] state
+	[31] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 15]
+		Running Process Information: [PID:2, Priority: 10, WakeUp: 0, Queue: USER]
+	[31] Deactivating PSW bit: EXECUTION_MODE_BIT
+[31] Activating PSW bit: EXECUTION_MODE_BIT
+	[31] Clock interrupt number [10] has occurred
+	[31] Deactivating PSW bit: EXECUTION_MODE_BIT
+[33] j -2 0 (PC: 1, Accumulator: 13, PSW: 0)
+[33] Activating PSW bit: EXECUTION_MODE_BIT
+	[33] Clock interrupt number [11] has occurred
+	[33] Deactivating PSW bit: EXECUTION_MODE_BIT
+[35] z 3 0 (PC: 2, Accumulator: 13, PSW: 0)
+[36] i -1 0 (PC: 3, Accumulator: 12, PSW: 0)
+[36] Activating PSW bit: EXECUTION_MODE_BIT
+	[36] Clock interrupt number [12] has occurred
+	[36] Deactivating PSW bit: EXECUTION_MODE_BIT
+[38] j -2 0 (PC: 1, Accumulator: 12, PSW: 0)
+[39] z 3 0 (PC: 2, Accumulator: 12, PSW: 0)
+[39] Activating PSW bit: EXECUTION_MODE_BIT
+	[39] Clock interrupt number [13] has occurred
+	[39] Deactivating PSW bit: EXECUTION_MODE_BIT
+[41] i -1 0 (PC: 3, Accumulator: 11, PSW: 0)
+[42] j -2 0 (PC: 1, Accumulator: 11, PSW: 0)
+[42] Activating PSW bit: EXECUTION_MODE_BIT
+	[42] Clock interrupt number [14] has occurred
+	[42] Deactivating PSW bit: EXECUTION_MODE_BIT
+[44] z 3 0 (PC: 2, Accumulator: 11, PSW: 0)
+[45] i -1 0 (PC: 3, Accumulator: 10, PSW: 0)
+[45] Activating PSW bit: EXECUTION_MODE_BIT
+	[45] Clock interrupt number [15] has occurred
+	[45] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[45] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[45] Process [2] moving from the [EXECUTING] state to the [READY] state
+	[45] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10], [2, 10]
+		DAEMONS: [0, 100]
+	[45] Process [2] is thrown out of the processor by process [1]
+	[45] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[45] Ready-to-run processes queue:
+		USER: [2, 10], [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 15, Queue: USER]
+	[45] Deactivating PSW bit: EXECUTION_MODE_BIT
+[47] m -1 10 (PC: 5, Accumulator: 8, PSW: 0)
+[48] z 2 0 (PC: 6, Accumulator: 8, PSW: 0)
+[48] Activating PSW bit: EXECUTION_MODE_BIT
+	[48] Clock interrupt number [16] has occurred
+	[48] Deactivating PSW bit: EXECUTION_MODE_BIT
+[50] j -5 0 (PC: 1, Accumulator: 8, PSW: 0)
+[51] w 10 0 (PC: 2, Accumulator: 8, PSW: 0)
+[51] Activating PSW bit: EXECUTION_MODE_BIT
+	[51] Clock interrupt number [17] has occurred
+	[51] Deactivating PSW bit: EXECUTION_MODE_BIT
+[53] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[54] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[54] Activating PSW bit: EXECUTION_MODE_BIT
+	[55] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[55] Process [2] moving from the [READY] state to the [EXECUTING] state
+	[55] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 23]
+		Running Process Information: [PID:2, Priority: 10, WakeUp: 0, Queue: USER]
+	[55] Deactivating PSW bit: EXECUTION_MODE_BIT
+[55] Activating PSW bit: EXECUTION_MODE_BIT
+	[55] Clock interrupt number [18] has occurred
+	[55] Deactivating PSW bit: EXECUTION_MODE_BIT
+[57] j -2 0 (PC: 1, Accumulator: 10, PSW: 0)
+[57] Activating PSW bit: EXECUTION_MODE_BIT
+	[57] Clock interrupt number [19] has occurred
+	[57] Deactivating PSW bit: EXECUTION_MODE_BIT
+[59] z 3 0 (PC: 2, Accumulator: 10, PSW: 0)
+[60] i -1 0 (PC: 3, Accumulator: 9, PSW: 0)
+[60] Activating PSW bit: EXECUTION_MODE_BIT
+	[60] Clock interrupt number [20] has occurred
+	[60] Deactivating PSW bit: EXECUTION_MODE_BIT
+[62] j -2 0 (PC: 1, Accumulator: 9, PSW: 0)
+[63] z 3 0 (PC: 2, Accumulator: 9, PSW: 0)
+[63] Activating PSW bit: EXECUTION_MODE_BIT
+	[63] Clock interrupt number [21] has occurred
+	[63] Deactivating PSW bit: EXECUTION_MODE_BIT
+[65] i -1 0 (PC: 3, Accumulator: 8, PSW: 0)
+[66] j -2 0 (PC: 1, Accumulator: 8, PSW: 0)
+[66] Activating PSW bit: EXECUTION_MODE_BIT
+	[66] Clock interrupt number [22] has occurred
+	[66] Deactivating PSW bit: EXECUTION_MODE_BIT
+[68] z 3 0 (PC: 2, Accumulator: 8, PSW: 0)
+[69] i -1 0 (PC: 3, Accumulator: 7, PSW: 0)
+[69] Activating PSW bit: EXECUTION_MODE_BIT
+	[69] Clock interrupt number [23] has occurred
+	[69] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[69] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[69] Process [2] moving from the [EXECUTING] state to the [READY] state
+	[69] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10], [2, 10]
+		DAEMONS: [0, 100]
+	[69] Process [2] is thrown out of the processor by process [1]
+	[69] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[69] Ready-to-run processes queue:
+		USER: [2, 10], [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 23, Queue: USER]
+	[69] Deactivating PSW bit: EXECUTION_MODE_BIT
+[71] m -1 10 (PC: 5, Accumulator: 7, PSW: 0)
+[72] z 2 0 (PC: 6, Accumulator: 7, PSW: 0)
+[72] Activating PSW bit: EXECUTION_MODE_BIT
+	[72] Clock interrupt number [24] has occurred
+	[72] Deactivating PSW bit: EXECUTION_MODE_BIT
+[74] j -5 0 (PC: 1, Accumulator: 7, PSW: 0)
+[75] w 10 0 (PC: 2, Accumulator: 7, PSW: 0)
+[75] Activating PSW bit: EXECUTION_MODE_BIT
+	[75] Clock interrupt number [25] has occurred
+	[75] Deactivating PSW bit: EXECUTION_MODE_BIT
+[77] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[78] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[78] Activating PSW bit: EXECUTION_MODE_BIT
+	[79] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[79] Process [2] moving from the [READY] state to the [EXECUTING] state
+	[79] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 31]
+		Running Process Information: [PID:2, Priority: 10, WakeUp: 0, Queue: USER]
+	[79] Deactivating PSW bit: EXECUTION_MODE_BIT
+[79] Activating PSW bit: EXECUTION_MODE_BIT
+	[79] Clock interrupt number [26] has occurred
+	[79] Deactivating PSW bit: EXECUTION_MODE_BIT
+[81] j -2 0 (PC: 1, Accumulator: 7, PSW: 0)
+[81] Activating PSW bit: EXECUTION_MODE_BIT
+	[81] Clock interrupt number [27] has occurred
+	[81] Deactivating PSW bit: EXECUTION_MODE_BIT
+[83] z 3 0 (PC: 2, Accumulator: 7, PSW: 0)
+[84] i -1 0 (PC: 3, Accumulator: 6, PSW: 0)
+[84] Activating PSW bit: EXECUTION_MODE_BIT
+	[84] Clock interrupt number [28] has occurred
+	[84] Deactivating PSW bit: EXECUTION_MODE_BIT
+[86] j -2 0 (PC: 1, Accumulator: 6, PSW: 0)
+[87] z 3 0 (PC: 2, Accumulator: 6, PSW: 0)
+[87] Activating PSW bit: EXECUTION_MODE_BIT
+	[87] Clock interrupt number [29] has occurred
+	[87] Deactivating PSW bit: EXECUTION_MODE_BIT
+[89] i -1 0 (PC: 3, Accumulator: 5, PSW: 0)
+[90] j -2 0 (PC: 1, Accumulator: 5, PSW: 0)
+[90] Activating PSW bit: EXECUTION_MODE_BIT
+	[90] Clock interrupt number [30] has occurred
+	[90] Deactivating PSW bit: EXECUTION_MODE_BIT
+[92] z 3 0 (PC: 2, Accumulator: 5, PSW: 0)
+[93] i -1 0 (PC: 3, Accumulator: 4, PSW: 0)
+[93] Activating PSW bit: EXECUTION_MODE_BIT
+	[93] Clock interrupt number [31] has occurred
+	[93] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[93] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[93] Process [2] moving from the [EXECUTING] state to the [READY] state
+	[93] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10], [2, 10]
+		DAEMONS: [0, 100]
+	[93] Process [2] is thrown out of the processor by process [1]
+	[93] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[93] Ready-to-run processes queue:
+		USER: [2, 10], [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 31, Queue: USER]
+	[93] Deactivating PSW bit: EXECUTION_MODE_BIT
+[95] m -1 10 (PC: 5, Accumulator: 6, PSW: 0)
+[96] z 2 0 (PC: 6, Accumulator: 6, PSW: 0)
+[96] Activating PSW bit: EXECUTION_MODE_BIT
+	[96] Clock interrupt number [32] has occurred
+	[96] Deactivating PSW bit: EXECUTION_MODE_BIT
+[98] j -5 0 (PC: 1, Accumulator: 6, PSW: 0)
+[99] w 10 0 (PC: 2, Accumulator: 6, PSW: 0)
+[99] Activating PSW bit: EXECUTION_MODE_BIT
+	[99] Clock interrupt number [33] has occurred
+	[99] Deactivating PSW bit: EXECUTION_MODE_BIT
+[101] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[102] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[102] Activating PSW bit: EXECUTION_MODE_BIT
+	[103] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[103] Process [2] moving from the [READY] state to the [EXECUTING] state
+	[103] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 39]
+		Running Process Information: [PID:2, Priority: 10, WakeUp: 0, Queue: USER]
+	[103] Deactivating PSW bit: EXECUTION_MODE_BIT
+[103] Activating PSW bit: EXECUTION_MODE_BIT
+	[103] Clock interrupt number [34] has occurred
+	[103] Deactivating PSW bit: EXECUTION_MODE_BIT
+[105] j -2 0 (PC: 1, Accumulator: 4, PSW: 0)
+[105] Activating PSW bit: EXECUTION_MODE_BIT
+	[105] Clock interrupt number [35] has occurred
+	[105] Deactivating PSW bit: EXECUTION_MODE_BIT
+[107] z 3 0 (PC: 2, Accumulator: 4, PSW: 0)
+[108] i -1 0 (PC: 3, Accumulator: 3, PSW: 0)
+[108] Activating PSW bit: EXECUTION_MODE_BIT
+	[108] Clock interrupt number [36] has occurred
+	[108] Deactivating PSW bit: EXECUTION_MODE_BIT
+[110] j -2 0 (PC: 1, Accumulator: 3, PSW: 0)
+[111] z 3 0 (PC: 2, Accumulator: 3, PSW: 0)
+[111] Activating PSW bit: EXECUTION_MODE_BIT
+	[111] Clock interrupt number [37] has occurred
+	[111] Deactivating PSW bit: EXECUTION_MODE_BIT
+[113] i -1 0 (PC: 3, Accumulator: 2, PSW: 0)
+[114] j -2 0 (PC: 1, Accumulator: 2, PSW: 0)
+[114] Activating PSW bit: EXECUTION_MODE_BIT
+	[114] Clock interrupt number [38] has occurred
+	[114] Deactivating PSW bit: EXECUTION_MODE_BIT
+[116] z 3 0 (PC: 2, Accumulator: 2, PSW: 0)
+[117] i -1 0 (PC: 3, Accumulator: 1, PSW: 0)
+[117] Activating PSW bit: EXECUTION_MODE_BIT
+	[117] Clock interrupt number [39] has occurred
+	[117] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[117] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[117] Process [2] moving from the [EXECUTING] state to the [READY] state
+	[117] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10], [2, 10]
+		DAEMONS: [0, 100]
+	[117] Process [2] is thrown out of the processor by process [1]
+	[117] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[117] Ready-to-run processes queue:
+		USER: [2, 10], [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 39, Queue: USER]
+	[117] Deactivating PSW bit: EXECUTION_MODE_BIT
+[119] m -1 10 (PC: 5, Accumulator: 5, PSW: 0)
+[120] z 2 0 (PC: 6, Accumulator: 5, PSW: 0)
+[120] Activating PSW bit: EXECUTION_MODE_BIT
+	[120] Clock interrupt number [40] has occurred
+	[120] Deactivating PSW bit: EXECUTION_MODE_BIT
+[122] j -5 0 (PC: 1, Accumulator: 5, PSW: 0)
+[123] w 10 0 (PC: 2, Accumulator: 5, PSW: 0)
+[123] Activating PSW bit: EXECUTION_MODE_BIT
+	[123] Clock interrupt number [41] has occurred
+	[123] Deactivating PSW bit: EXECUTION_MODE_BIT
+[125] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[126] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[126] Activating PSW bit: EXECUTION_MODE_BIT
+	[127] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[127] Process [2] moving from the [READY] state to the [EXECUTING] state
+	[127] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 47]
+		Running Process Information: [PID:2, Priority: 10, WakeUp: 0, Queue: USER]
+	[127] Deactivating PSW bit: EXECUTION_MODE_BIT
+[127] Activating PSW bit: EXECUTION_MODE_BIT
+	[127] Clock interrupt number [42] has occurred
+	[127] Deactivating PSW bit: EXECUTION_MODE_BIT
+[129] j -2 0 (PC: 1, Accumulator: 1, PSW: 0)
+[129] Activating PSW bit: EXECUTION_MODE_BIT
+	[129] Clock interrupt number [43] has occurred
+	[129] Deactivating PSW bit: EXECUTION_MODE_BIT
+[131] z 3 0 (PC: 2, Accumulator: 1, PSW: 0)
+[132] i -1 0 (PC: 3, Accumulator: 0, PSW: 0)
+[132] Activating PSW bit: EXECUTION_MODE_BIT
+	[132] Clock interrupt number [44] has occurred
+	[132] Deactivating PSW bit: EXECUTION_MODE_BIT
+[134] j -2 0 (PC: 1, Accumulator: 0, PSW: 0)
+[135] z 3 0 (PC: 4, Accumulator: 0, PSW: 0)
+[135] Activating PSW bit: EXECUTION_MODE_BIT
+	[135] Clock interrupt number [45] has occurred
+	[135] Deactivating PSW bit: EXECUTION_MODE_BIT
+[137] t 3 0 (PC: 5, Accumulator: 0, PSW: 0)
+[137] Activating PSW bit: EXECUTION_MODE_BIT
+	[138] Process [2] has requested to terminate
+	[138] Process [2] moving from the [EXECUTING] state to the [EXIT] state
+	[138] Process [3] moving from the [READY] state to the [EXECUTING] state
+	[138] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 47]
+		Running Process Information: [PID:3, Priority: 10, WakeUp: 0, Queue: USER]
+	[138] Deactivating PSW bit: EXECUTION_MODE_BIT
+[138] Activating PSW bit: EXECUTION_MODE_BIT
+	[138] Clock interrupt number [46] has occurred
+	[138] Deactivating PSW bit: EXECUTION_MODE_BIT
+[140] i -1 0 (PC: 4, Accumulator: 4, PSW: 0)
+[141] j -3 0 (PC: 1, Accumulator: 4, PSW: 0)
+[141] Activating PSW bit: EXECUTION_MODE_BIT
+	[141] Clock interrupt number [47] has occurred
+	[141] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[141] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: [0, 100]
+	[141] Process [3] moving from the [EXECUTING] state to the [READY] state
+	[141] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[141] Process [3] is thrown out of the processor by process [1]
+	[141] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[141] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 47, Queue: USER]
+	[141] Deactivating PSW bit: EXECUTION_MODE_BIT
+[143] m -1 10 (PC: 5, Accumulator: 4, PSW: 0)
+[144] z 2 0 (PC: 6, Accumulator: 4, PSW: 0)
+[144] Activating PSW bit: EXECUTION_MODE_BIT
+	[144] Clock interrupt number [48] has occurred
+	[144] Deactivating PSW bit: EXECUTION_MODE_BIT
+[146] j -5 0 (PC: 1, Accumulator: 4, PSW: 0)
+[147] w 10 0 (PC: 2, Accumulator: 4, PSW: 0)
+[147] Activating PSW bit: EXECUTION_MODE_BIT
+	[147] Clock interrupt number [49] has occurred
+	[147] Deactivating PSW bit: EXECUTION_MODE_BIT
+[149] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[150] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[150] Activating PSW bit: EXECUTION_MODE_BIT
+	[151] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[151] Process [3] moving from the [READY] state to the [EXECUTING] state
+	[151] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 55]
+		Running Process Information: [PID:3, Priority: 10, WakeUp: 0, Queue: USER]
+	[151] Deactivating PSW bit: EXECUTION_MODE_BIT
+[151] Activating PSW bit: EXECUTION_MODE_BIT
+	[151] Clock interrupt number [50] has occurred
+	[151] Deactivating PSW bit: EXECUTION_MODE_BIT
+[153] z 4 0 (PC: 2, Accumulator: 4, PSW: 0)
+[153] Activating PSW bit: EXECUTION_MODE_BIT
+	[153] Clock interrupt number [51] has occurred
+	[153] Deactivating PSW bit: EXECUTION_MODE_BIT
+[155] t 4 0 (PC: 3, Accumulator: 4, PSW: 0)
+[155] Activating PSW bit: EXECUTION_MODE_BIT
+	[156] Deactivating PSW bit: EXECUTION_MODE_BIT
+[156] Activating PSW bit: EXECUTION_MODE_BIT
+	[156] Clock interrupt number [52] has occurred
+	[156] Deactivating PSW bit: EXECUTION_MODE_BIT
+[158] i -1 0 (PC: 4, Accumulator: 3, PSW: 0)
+[159] j -3 0 (PC: 1, Accumulator: 3, PSW: 0)
+[159] Activating PSW bit: EXECUTION_MODE_BIT
+	[159] Clock interrupt number [53] has occurred
+	[159] Deactivating PSW bit: EXECUTION_MODE_BIT
+[161] z 4 0 (PC: 2, Accumulator: 3, PSW: 0)
+[162] t 4 0 (PC: 3, Accumulator: 3, PSW: 0)
+[162] Activating PSW bit: EXECUTION_MODE_BIT
+	[163] Deactivating PSW bit: EXECUTION_MODE_BIT
+[163] Activating PSW bit: EXECUTION_MODE_BIT
+	[163] Clock interrupt number [54] has occurred
+	[163] Deactivating PSW bit: EXECUTION_MODE_BIT
+[165] i -1 0 (PC: 4, Accumulator: 2, PSW: 0)
+[165] Activating PSW bit: EXECUTION_MODE_BIT
+	[165] Clock interrupt number [55] has occurred
+	[165] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[165] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: [0, 100]
+	[165] Process [3] moving from the [EXECUTING] state to the [READY] state
+	[165] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[165] Process [3] is thrown out of the processor by process [1]
+	[165] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[165] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 55, Queue: USER]
+	[165] Deactivating PSW bit: EXECUTION_MODE_BIT
+[167] m -1 10 (PC: 5, Accumulator: 3, PSW: 0)
+[168] z 2 0 (PC: 6, Accumulator: 3, PSW: 0)
+[168] Activating PSW bit: EXECUTION_MODE_BIT
+	[168] Clock interrupt number [56] has occurred
+	[168] Deactivating PSW bit: EXECUTION_MODE_BIT
+[170] j -5 0 (PC: 1, Accumulator: 3, PSW: 0)
+[171] w 10 0 (PC: 2, Accumulator: 3, PSW: 0)
+[171] Activating PSW bit: EXECUTION_MODE_BIT
+	[171] Clock interrupt number [57] has occurred
+	[171] Deactivating PSW bit: EXECUTION_MODE_BIT
+[173] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[174] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[174] Activating PSW bit: EXECUTION_MODE_BIT
+	[175] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[175] Process [3] moving from the [READY] state to the [EXECUTING] state
+	[175] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 63]
+		Running Process Information: [PID:3, Priority: 10, WakeUp: 0, Queue: USER]
+	[175] Deactivating PSW bit: EXECUTION_MODE_BIT
+[175] Activating PSW bit: EXECUTION_MODE_BIT
+	[175] Clock interrupt number [58] has occurred
+	[175] Deactivating PSW bit: EXECUTION_MODE_BIT
+[177] j -3 0 (PC: 1, Accumulator: 2, PSW: 0)
+[177] Activating PSW bit: EXECUTION_MODE_BIT
+	[177] Clock interrupt number [59] has occurred
+	[177] Deactivating PSW bit: EXECUTION_MODE_BIT
+[179] z 4 0 (PC: 2, Accumulator: 2, PSW: 0)
+[180] t 4 0 (PC: 3, Accumulator: 2, PSW: 0)
+[180] Activating PSW bit: EXECUTION_MODE_BIT
+	[181] Deactivating PSW bit: EXECUTION_MODE_BIT
+[181] Activating PSW bit: EXECUTION_MODE_BIT
+	[181] Clock interrupt number [60] has occurred
+	[181] Deactivating PSW bit: EXECUTION_MODE_BIT
+[183] i -1 0 (PC: 4, Accumulator: 1, PSW: 0)
+[183] Activating PSW bit: EXECUTION_MODE_BIT
+	[183] Clock interrupt number [61] has occurred
+	[183] Deactivating PSW bit: EXECUTION_MODE_BIT
+[185] j -3 0 (PC: 1, Accumulator: 1, PSW: 0)
+[186] z 4 0 (PC: 2, Accumulator: 1, PSW: 0)
+[186] Activating PSW bit: EXECUTION_MODE_BIT
+	[186] Clock interrupt number [62] has occurred
+	[186] Deactivating PSW bit: EXECUTION_MODE_BIT
+[188] t 4 0 (PC: 3, Accumulator: 1, PSW: 0)
+[188] Activating PSW bit: EXECUTION_MODE_BIT
+	[189] Deactivating PSW bit: EXECUTION_MODE_BIT
+[189] Activating PSW bit: EXECUTION_MODE_BIT
+	[189] Clock interrupt number [63] has occurred
+	[189] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[189] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: [0, 100]
+	[189] Process [3] moving from the [EXECUTING] state to the [READY] state
+	[189] Ready-to-run processes queue:
+		USER: [1, 5], [3, 10]
+		DAEMONS: [0, 100]
+	[189] Process [3] is thrown out of the processor by process [1]
+	[189] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[189] Ready-to-run processes queue:
+		USER: [3, 10]
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 63, Queue: USER]
+	[189] Deactivating PSW bit: EXECUTION_MODE_BIT
+[191] m -1 10 (PC: 5, Accumulator: 2, PSW: 0)
+[192] z 2 0 (PC: 6, Accumulator: 2, PSW: 0)
+[192] Activating PSW bit: EXECUTION_MODE_BIT
+	[192] Clock interrupt number [64] has occurred
+	[192] Deactivating PSW bit: EXECUTION_MODE_BIT
+[194] j -5 0 (PC: 1, Accumulator: 2, PSW: 0)
+[195] w 10 0 (PC: 2, Accumulator: 2, PSW: 0)
+[195] Activating PSW bit: EXECUTION_MODE_BIT
+	[195] Clock interrupt number [65] has occurred
+	[195] Deactivating PSW bit: EXECUTION_MODE_BIT
+[197] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[198] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[198] Activating PSW bit: EXECUTION_MODE_BIT
+	[199] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[199] Process [3] moving from the [READY] state to the [EXECUTING] state
+	[199] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+		SLEEPING Queue: [1, 5, 71]
+		Running Process Information: [PID:3, Priority: 10, WakeUp: 0, Queue: USER]
+	[199] Deactivating PSW bit: EXECUTION_MODE_BIT
+[199] Activating PSW bit: EXECUTION_MODE_BIT
+	[199] Clock interrupt number [66] has occurred
+	[199] Deactivating PSW bit: EXECUTION_MODE_BIT
+[201] i -1 0 (PC: 4, Accumulator: 0, PSW: 0)
+[201] Activating PSW bit: EXECUTION_MODE_BIT
+	[201] Clock interrupt number [67] has occurred
+	[201] Deactivating PSW bit: EXECUTION_MODE_BIT
+[203] j -3 0 (PC: 1, Accumulator: 0, PSW: 0)
+[204] z 4 0 (PC: 5, Accumulator: 0, PSW: 0)
+[204] Activating PSW bit: EXECUTION_MODE_BIT
+	[204] Clock interrupt number [68] has occurred
+	[204] Deactivating PSW bit: EXECUTION_MODE_BIT
+[206] h 0 0 (PC: 5, Accumulator: 0, PSW: 0)
+[206] Activating PSW bit: EXECUTION_MODE_BIT
+	[207] Process [3] has generated an exception and is terminating
+	[207] Process [3] moving from the [EXECUTING] state to the [EXIT] state
+	[207] Process [0] moving from the [READY] state to the [EXECUTING] state
+	[207] Clock interrupt number [69] has occurred
+[209] a 1200 316 (PC: 1, Accumulator: 1516, PSW: 128)
+[210] n 0 0 (PC: 2, Accumulator: 1516, PSW: 128)
+	[210] Clock interrupt number [70] has occurred
+[212] j -1 0 (PC: 1, Accumulator: 1516, PSW: 128)
+[213] n 0 0 (PC: 2, Accumulator: 1516, PSW: 128)
+	[213] Clock interrupt number [71] has occurred
+	[213] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[213] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: 
+	[213] Process [0] moving from the [EXECUTING] state to the [READY] state
+	[213] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: [0, 100]
+	[213] Process [0] is thrown out of the processor by process [1]
+	[213] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[213] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 71, Queue: USER]
+	[213] Deactivating PSW bit: EXECUTION_MODE_BIT
+[215] m -1 10 (PC: 5, Accumulator: 1, PSW: 0)
+[216] z 2 0 (PC: 6, Accumulator: 1, PSW: 0)
+[216] Activating PSW bit: EXECUTION_MODE_BIT
+	[216] Clock interrupt number [72] has occurred
+	[216] Deactivating PSW bit: EXECUTION_MODE_BIT
+[218] j -5 0 (PC: 1, Accumulator: 1, PSW: 0)
+[219] w 10 0 (PC: 2, Accumulator: 1, PSW: 0)
+[219] Activating PSW bit: EXECUTION_MODE_BIT
+	[219] Clock interrupt number [73] has occurred
+	[219] Deactivating PSW bit: EXECUTION_MODE_BIT
+[221] a 5 0 (PC: 3, Accumulator: 5, PSW: 0)
+[222] t 7 0 (PC: 4, Accumulator: 5, PSW: 0)
+[222] Activating PSW bit: EXECUTION_MODE_BIT
+	[223] Process [1] moving from the [EXECUTING] state to the [BLOCKED] state
+	[223] Process [0] moving from the [READY] state to the [EXECUTING] state
+	[223] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: 
+		SLEEPING Queue: [1, 5, 79]
+		Running Process Information: [PID:0, Priority: 100, WakeUp: 0, Queue: DAEMONS]
+	[223] Clock interrupt number [74] has occurred
+[225] j -1 0 (PC: 1, Accumulator: 1516, PSW: 128)
+	[225] Clock interrupt number [75] has occurred
+[227] n 0 0 (PC: 2, Accumulator: 1516, PSW: 128)
+[228] j -1 0 (PC: 1, Accumulator: 1516, PSW: 128)
+	[228] Clock interrupt number [76] has occurred
+[230] n 0 0 (PC: 2, Accumulator: 1516, PSW: 128)
+[231] j -1 0 (PC: 1, Accumulator: 1516, PSW: 128)
+	[231] Clock interrupt number [77] has occurred
+[233] n 0 0 (PC: 2, Accumulator: 1516, PSW: 128)
+[234] j -1 0 (PC: 1, Accumulator: 1516, PSW: 128)
+	[234] Clock interrupt number [78] has occurred
+[236] n 0 0 (PC: 2, Accumulator: 1516, PSW: 128)
+[237] j -1 0 (PC: 1, Accumulator: 1516, PSW: 128)
+	[237] Clock interrupt number [79] has occurred
+	[237] Process [1] moving from the [BLOCKED] state to the [READY] state
+	[237] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: 
+	[237] Process [0] moving from the [EXECUTING] state to the [READY] state
+	[237] Ready-to-run processes queue:
+		USER: [1, 5]
+		DAEMONS: [0, 100]
+	[237] Process [0] is thrown out of the processor by process [1]
+	[237] Process [1] moving from the [READY] state to the [EXECUTING] state
+	[237] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: [0, 100]
+		SLEEPING Queue: 
+		Running Process Information: [PID:1, Priority: 5, WakeUp: 79, Queue: USER]
+	[237] Deactivating PSW bit: EXECUTION_MODE_BIT
+[239] m -1 10 (PC: 5, Accumulator: 0, PSW: 0)
+[240] z 2 0 (PC: 7, Accumulator: 0, PSW: 0)
+[240] Activating PSW bit: EXECUTION_MODE_BIT
+	[240] Clock interrupt number [80] has occurred
+	[240] Deactivating PSW bit: EXECUTION_MODE_BIT
+[242] t 3 0 (PC: 8, Accumulator: 0, PSW: 0)
+[242] Activating PSW bit: EXECUTION_MODE_BIT
+	[243] Process [1] has requested to terminate
+	[243] Process [1] moving from the [EXECUTING] state to the [EXIT] state
+	[243] Process [0] moving from the [READY] state to the [EXECUTING] state
+	[243] Ready-to-run processes queue:
+		USER: 
+		DAEMONS: 
+		SLEEPING Queue: 
+		Running Process Information: [PID:0, Priority: 100, WakeUp: 0, Queue: DAEMONS]
+	[243] Clock interrupt number [81] has occurred
+[245] h 0 0 Activating PSW bit: POWEROFF_BIT  (PC: 3, Accumulator: 1516, PSW: 129)
+[245] END of the simulation

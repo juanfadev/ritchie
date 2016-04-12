@@ -1,0 +1,37 @@
+
+// In Processor.c 	Exercise 0.a of V2
+void Processor_ShowTime(char section) {
+	ComputerSystem_DebugMessage(section,Processor_PSW_BitState(EXECUTION_MODE_BIT)?"sRds":"sds","[",Clock_GetTime(),"] ");
+}
+
+///////////////////////////////////////////////////////////////////////
+
+
+// In Processor.c	Exercise 0.b of V2
+// Set a given bit position in the PSW register
+void Processor_ActivatePSW_Bit(const unsigned int nbit) {
+	unsigned int mask = 1;
+
+	mask = mask << nbit;
+
+	if (nbit!=POWEROFF_BIT)
+		Processor_ShowTime(HARDWARE);  // for Exercise 1 of V2
+	ComputerSystem_DebugMessage(HARDWARE,"sRss",nbit!=POWEROFF_BIT?"Activating PSW bit: ":" Activating PSW bit: ",PSW_BITS_names[nbit], nbit!=POWEROFF_BIT?"\n":" ");
+
+	registerPSW_CPU = registerPSW_CPU | mask;
+}
+
+// In Processor.c	Exercise 0.b of V2
+// Unset a given bit position in the PSW register
+void Processor_DeactivatePSW_Bit(const unsigned int nbit) {
+	unsigned int mask = 1;
+
+	mask = mask << nbit;
+	mask = ~mask;
+
+	Processor_ShowTime(HARDWARE);  // for Exercise 1 of V2
+	ComputerSystem_DebugMessage(HARDWARE,"sRss","Deactivating PSW bit: ",PSW_BITS_names[nbit],"\n");
+
+	registerPSW_CPU = registerPSW_CPU & mask;
+}
+

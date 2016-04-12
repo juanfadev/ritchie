@@ -1,0 +1,35 @@
+
+// In OperatingSystem.c  Exercise 0.f of V2
+void OperatingSystem_ShowTime(char section) {
+	ComputerSystem_DebugMessage(section,Processor_PSW_BitState(EXECUTION_MODE_BIT)?"sRds":"sds","\t[",Clock_GetTime(),"] ");
+}
+
+/////////////////////////////////////////////////////////////
+
+// In OperatingSystem.c Exercise 5.c of V2
+void OperatingSystem_PrintStatus(){ // Exercise 5.c of V2
+  int i;
+  OperatingSystem_PrintReadyToRunQueue();
+  ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"s",Processor_PSW_BitState(EXECUTION_MODE_BIT)?"\t":"");
+  ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"s","\tSLEEPING Queue: ");
+  for (i=0; i< numberOfSleepingProcesses; i++) {
+	ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"sGdsGdsGds","[",sleepingProcessesQueue[i],", ",processTable[sleepingProcessesQueue[i]].priority,", ",processTable[sleepingProcessesQueue[i]].whenToWakeUp,"]");
+	if (i<numberOfSleepingProcesses-1)
+	  ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"s",", ");
+  }
+  ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"s","\n");
+  
+  ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"s",Processor_PSW_BitState(EXECUTION_MODE_BIT)?"\t":"");
+  if (executingProcessID<0) {
+	ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"sGdsdsGdsGss","\tRunning Process Information: [PID:",executingProcessID
+						  ,", Priority: ",-1
+						  ,", WakeUp: ",-1
+						  ,", Queue: ","NOQUEUE","]\n");
+	}
+  else {
+	ComputerSystem_DebugMessage(SHORTTERMSCHEDULE,"sGdsdsGdsGss","\tRunning Process Information: [PID:",executingProcessID
+						  ,", Priority: ",processTable[executingProcessID].priority
+						  ,", WakeUp: ",processTable[executingProcessID].whenToWakeUp
+						  ,", Queue: ",processTable[executingProcessID].queueID?"DAEMONS":"USER","]\n");
+  }
+}
